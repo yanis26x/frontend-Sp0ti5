@@ -10,6 +10,10 @@ function App() {
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
+// COMME ICI STRUCTURE
+  const HOST = import.meta.env.VITE_API_URL;
+// COMME ICI STRUCTURE
+
   const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -24,9 +28,12 @@ function App() {
 
   const chercher = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/spotify/search-song", {
-        params: { name: musique, artist: artiste },
-      });
+
+      // COMME ICI STRUCTURE
+      const res = await axios.get(`${HOST}spotify/search-song?name=${musique}&artist=${artiste}`
+      // COMME ICI STRUCTURE
+
+      );
 
       setResultat(res.data.data);
     } catch {
