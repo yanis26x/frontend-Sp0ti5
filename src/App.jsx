@@ -28,22 +28,22 @@ function App() {
   }, []);
 
   const chercher = async () => {
+    if (!musique || !artiste) {
+      alert("Remplis les champs !");
+      return;
+    }
+
     try {
-      // ============================
-      //     COMME ICI STRUCTURE
-      // ============================
       const res = await axios.get(
         `${HOST}spotify/search-song?name=${musique}&artist=${artiste}`
       );
-      // ============================
-
       setResultat(res.data.data);
     } catch (err) {
       alert("Erreur ou musique introuvable..");
     }
   };
 
-  // ==== PAGE AUTH ====
+  // Login 
   if (page === "auth") {
     return (
       <Auth
@@ -56,66 +56,91 @@ function App() {
     );
   }
 
-  // ==== PAGE HOME ====
+ 
   return (
     <div className="page">
 
-      {/* Message bienvenue */}
-
-
-      {/* LOGIN / LOGOUT */}
-      {!user && (
-        <button className="login-btn" onClick={() => setPage("auth")}>
-          Login
-        </button>
-      )}
-
-      {user && (
-        <button className="logout-btn" onClick={logout}>
-          Se déconnecter
-        </button>
-      )}
-
-      {/* Titre */}
-      <h1>Chercher une musique !</h1>
-
-      {/* Inputs */}
-      <input
-        placeholder="Nom de la musique"
-        value={musique}
-        onChange={(e) => setMusique(e.target.value)}
-      />
-
-      <input
-        placeholder="Nom de l'artiste"
-        value={artiste}
-        onChange={(e) => setArtiste(e.target.value)}
-      />
-
-      {/* Bouton chercher */}
-      <button onClick={chercher}>Chercher</button>
-
-      {/* Résultat */}
-      {resultat && (
-        <div className="box">
-          <p>Nom : {resultat.name}</p>
-          <p>Album : {resultat.album}</p>
-          <p>Popularité : {resultat.popularity}</p>
-        </div>
-      )}
-
-      {/* pr faire vite !! */}
-      <div className="prFaireVite">
-        <button
-          onClick={() => {
-            setMusique("God's Plan");
-            setArtiste("Drake");
-          }}
-        >
-          Auto remplir God's Plan / Drake
-        </button>
+      <div style={{
+        textAlign: "center",
+        fontSize: "13px",
+        opacity: 0.7,
+        marginBottom: "14px"
+      }}>
+        Fait par : Yanis, William, Reda, Manassé
       </div>
 
+      {/* topbar */}
+      <div className="topbar">
+        
+        {!user && (
+          <button
+            className="topbar-btn"
+            onClick={() => setPage("auth")}>
+            Login
+          </button>
+        )}
+
+        {user && (
+          <button
+            className="topbar-btn logout"
+            onClick={logout}
+          >
+            Déconnexion
+          </button>
+        )}
+      </div>
+
+      {/* 2 collonne */}
+      <div className="content">
+
+        <div className="left">
+          <h1>Chercher une musique</h1>
+
+          <input
+            placeholder="Nom de la musique"
+            value={musique}
+            onChange={(e) => setMusique(e.target.value)}
+          />
+
+          <input
+            placeholder="Nom de l'artiste"
+            value={artiste}
+            onChange={(e) => setArtiste(e.target.value)}
+          />
+
+          <button onClick={chercher}>Chercher</button>
+
+          <div className="prFaireVite">
+            <button
+              onClick={() => {
+                setMusique("God's Plan");
+                setArtiste("Drake");
+              }}
+            >
+              Auto remplir : God's Plan / Drake
+            </button>
+          </div>
+        </div>
+
+        <div className="right">
+          {!resultat && (
+            <div className="box">
+              <p><b>Aucun résultat</b></p>
+              <p>Recherche une musique pour afficher les infos ici!</p>
+            </div>
+          )}
+
+          {resultat && (
+            <div className="box">
+              <p><b>Nom :</b> {resultat.name}</p>
+              <p><b>Artiste :</b> {artiste}</p>
+              <p><b>Album :</b> {resultat.album}</p>
+              <p><b>Popularité :</b> {resultat.popularity}</p>
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
 }

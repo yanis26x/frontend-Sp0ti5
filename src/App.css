@@ -1,4 +1,3 @@
-
 * {
   margin: 0;
   padding: 0;
@@ -7,100 +6,130 @@
 }
 
 body {
-  background: #111; 
-  color: white;
+  min-height: 100vh;
+  background: #050b12;
+  color: rgb(6, 243, 255);
+  background-image: url("./assets/musicBackground.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 
 .page {
-  max-width: 420px;
-  margin: 70px auto;
-  padding: 20px;
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 28px;
+  background: rgba(5, 10, 18, 0.738);
+  border-radius: 18px;
 }
 
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  margin-bottom: 30px;
+  border-radius: 14px;
+}
+
+
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+}
 
 h1 {
-  font-size: 22px;
-  margin-bottom: 15px;
-  font-weight: 600;
-  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 25px;
 }
-
 
 input {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #1a1a1a;
+  padding: 14px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.55);
   color: white;
   font-size: 15px;
 }
 
 input::placeholder {
-  color: #ffffff;
+  color: rgb(255, 255, 255);
 }
-
 
 button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 12px;
-  border-radius: 6px;
-  background: #1245ff;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #1e50ff, #3a7bff);
   color: white;
   font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-button:active {
-  opacity: 0.8;
+.prFaireVite button {
+  margin-top: 14px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
+.right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 .box {
-  margin-top: 18px;
-  padding: 15px;
-  border-radius: 8px;
-  background: #1a1a1a;
-  border: 1px solid #333;
+  padding: 26px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: inset 0 0 40px rgba(255,255,255,0.03);
 }
 
 .box p {
-  margin: 6px;
+  margin-bottom: 14px;
+  font-size: 16px;
 }
 
-/* --login et logout bouton*/
-.login-btn,
-.logout-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+.box p b {
+  opacity: 0.7;
+}
 
-  background: #1a1a1a;
-  border: 1px solid #333;
-  padding: 6px 12px;
-  border-radius: 6px;
+
+.topbar-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 13px;
   cursor: pointer;
 }
 
-.login-btn:active,
-.logout-btn:active {
-  
-  opacity: 0.7;
+.topbar-btn.logout {
+  background: rgba(255, 80, 80, 0.18);
+  border-color: rgba(255, 80, 80, 0.3);
 }
 
+/* idkk ???? */
+@media (max-width: 900px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
 
-
-
-
-.prFaireVite button {
-  background: #6b6060;
-  border: 1px solid #333;
-  color: white;
-}
-
-.prFaireVite button:active {
-  opacity: 0.7;
+  .right {
+    margin-top: 30px;
+  }
 }
