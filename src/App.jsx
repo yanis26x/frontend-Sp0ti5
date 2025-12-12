@@ -10,16 +10,17 @@ function App() {
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
-// COMME ICI STRUCTURE
+  // ============================
+  //   COMME ICI STRUCTURE
+  // ============================
   const HOST = import.meta.env.VITE_API_URL;
-// COMME ICI STRUCTURE
+  // ============================
 
   const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  setUser(null);
-};
-
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -28,74 +29,73 @@ function App() {
 
   const chercher = async () => {
     try {
-
-      // COMME ICI STRUCTURE
-      const res = await axios.get(`${HOST}spotify/search-song?name=${musique}&artist=${artiste}`
-      // COMME ICI STRUCTURE
-
+      // ============================
+      //     COMME ICI STRUCTURE
+      // ============================
+      const res = await axios.get(
+        `${HOST}spotify/search-song?name=${musique}&artist=${artiste}`
       );
+      // ============================
 
       setResultat(res.data.data);
-    } catch {
+    } catch (err) {
       alert("Erreur ou musique introuvable..");
     }
   };
 
-  if (page === "auth")
+  // ==== PAGE AUTH ====
+  if (page === "auth") {
     return (
       <Auth
         goHome={() => {
           setPage("home");
-          const storedUser = localStorage.getItem("user");
-          if (storedUser) setUser(JSON.parse(storedUser));
+          const stored = localStorage.getItem("user");
+          if (stored) setUser(JSON.parse(stored));
         }}
       />
     );
+  }
 
+  // ==== PAGE HOME ====
   return (
     <div className="page">
 
-    <p className="welcome">
-  {user ? `Bienvenue, ${user.name} 👋` : "Bienvenue !"}
-</p>
+      {/* Message bienvenue */}
 
 
-{!user && (
-  <button className="login-btn" onClick={() => setPage("auth")}>
-    Login
-  </button>
-)}
-
-
-{user && (
-  <button className="logout-btn" onClick={logout}>
-    Se déconnecter
-  </button>
-)}
-
-
+      {/* LOGIN / LOGOUT */}
       {!user && (
         <button className="login-btn" onClick={() => setPage("auth")}>
           Login
         </button>
       )}
 
-      <h1>Chercher musique</h1>
+      {user && (
+        <button className="logout-btn" onClick={logout}>
+          Se déconnecter
+        </button>
+      )}
 
+      {/* Titre */}
+      <h1>Chercher une musique !</h1>
+
+      {/* Inputs */}
       <input
-        placeholder="Nom 2 la musique"
+        placeholder="Nom de la musique"
         value={musique}
         onChange={(e) => setMusique(e.target.value)}
       />
 
       <input
-        placeholder="Nom 2 l'artiste"
+        placeholder="Nom de l'artiste"
         value={artiste}
         onChange={(e) => setArtiste(e.target.value)}
       />
 
-      <button onClick={chercher}>chercher</button>
+      {/* Bouton chercher */}
+      <button onClick={chercher}>Chercher</button>
 
+      {/* Résultat */}
       {resultat && (
         <div className="box">
           <p>Nom : {resultat.name}</p>
@@ -104,7 +104,8 @@ function App() {
         </div>
       )}
 
-      <div className="quick-tests">
+      {/* pr faire vite !! */}
+      <div className="prFaireVite">
         <button
           onClick={() => {
             setMusique("God's Plan");
@@ -114,6 +115,7 @@ function App() {
           Auto remplir God's Plan / Drake
         </button>
       </div>
+
     </div>
   );
 }

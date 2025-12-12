@@ -72,14 +72,14 @@ export default function Auth({ goHome }) {
       </button>
 
       <p
-        style={{ marginTop: 20, cursor: "pointer", color: "cyan" }}
+        style={{ marginTop: 20, cursor: "pointer", color: "red" }}
         onClick={() => setIsLogin(!isLogin)}
       >
         {isLogin ? "Pas de compte ? Inscris-toi" : "Déjà un compte ? Connecte-toi"}
       </p>
 
-      {/* 🔥 Auto fill */}
-      <div className="quick-tests">
+
+      <div className="prFaireVite">
         <button
           onClick={() => {
             setEmail("alic2e@example.com");

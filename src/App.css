@@ -1,92 +1,106 @@
-.page {
-  padding: 20px;
-  color: white;
-  position: relative;
-  z-index: 20000;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
 }
+
+body {
+  background: #111; 
+  color: white;
+}
+
+
+.page {
+  max-width: 420px;
+  margin: 70px auto;
+  padding: 20px;
+}
+
 
 h1 {
-  font-size: 25px;
-  margin-bottom: 10px;
+  font-size: 22px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  text-align: center;
 }
 
+
 input {
-  display: block;
   width: 100%;
-  padding: 8px;
-  margin-top: 10px;
-  border-radius: 5px;
-  border: none;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: white;
   font-size: 15px;
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px;
-  width: 100%;
-  border: none;
-  background: #2d53ff;
-  color: white;
-  border-radius: 5px;
-  font-size: 16px;
+input::placeholder {
+  color: #ffffff;
 }
+
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 12px;
+  border-radius: 6px;
+  background: #1245ff;
+  color: white;
+  font-size: 15px;
+}
+
+button:active {
+  opacity: 0.8;
+}
+
 
 .box {
-  margin-top: 15px;
-  background: rgba(0, 0, 0, 0.6);
+  margin-top: 18px;
   padding: 15px;
   border-radius: 8px;
+  background: #1a1a1a;
+  border: 1px solid #333;
 }
 
-.bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  opacity: 0.75;
-  z-index: 10000;
+.box p {
+  margin: 6px;
 }
 
-
-.login-btn {
+/* --login et logout bouton*/
+.login-btn,
+.logout-btn {
   position: absolute;
   top: 15px;
   right: 15px;
-  background: black;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  font-size: 14px;
+
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 6px 12px;
   border-radius: 6px;
+  font-size: 13px;
   cursor: pointer;
 }
 
-.login-btn:hover {
-  opacity: 0.8;
-}
-.welcome {
-  position: absolute;
-  top: 10px;
-  left: 15px;
-  font-size: 14px;
-  opacity: 0.8;
+.login-btn:active,
+.logout-btn:active {
+  
+  opacity: 0.7;
 }
 
-.login-btn {
-  position: absolute;
-  top: 8px;
-  right: 15px;
-  background: rgba(255,255,255,0.15);
-  padding: 4px 10px;
-  font-size: 12px;
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.3);
+
+
+
+
+.prFaireVite button {
+  background: #6b6060;
+  border: 1px solid #333;
   color: white;
-  cursor: pointer;
 }
 
-.login-btn:hover {
-  background: rgba(255,255,255,0.25);
+.prFaireVite button:active {
+  opacity: 0.7;
 }
