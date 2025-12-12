@@ -28,22 +28,31 @@ function App() {
   }, []);
 
   const chercher = async () => {
-    if (!musique || !artiste) {
-      alert("Remplis les champs !");
+    if (!musique) {
+      alert("Remplis au moins le nom de la musique !");
       return;
     }
 
     try {
+      const params = new URLSearchParams();
+      params.append("name", musique);
+
+      // artiste OPTIONNEL
+      if (artiste.trim() !== "") {
+        params.append("artist", artiste);
+      }
+
       const res = await axios.get(
-        `${HOST}spotify/search-song?name=${musique}&artist=${artiste}`
+        `${HOST}spotify/search-song?${params.toString()}`
       );
+
       setResultat(res.data.data);
     } catch (err) {
       alert("Erreur ou musique introuvable..");
     }
   };
 
-  // Login 
+  // Login
   if (page === "auth") {
     return (
       <Auth
@@ -69,13 +78,14 @@ function App() {
         Fait par : Yanis, William, Reda, Manassé
       </div>
 
-      {/* topbar */}
+
       <div className="topbar">
-        
+
         {!user && (
           <button
             className="topbar-btn"
-            onClick={() => setPage("auth")}>
+            onClick={() => setPage("auth")}
+          >
             Login
           </button>
         )}
@@ -83,19 +93,17 @@ function App() {
         {user && (
           <button
             className="topbar-btn logout"
-            onClick={logout}
-          >
+            onClick={logout}>
             Déconnexion
           </button>
         )}
       </div>
 
-      {/* 2 collonne */}
+
       <div className="content">
 
         <div className="left">
-          <h1>Chercher une musique</h1>
-
+          <h1>Chercher une musique !</h1>
           <input
             placeholder="Nom de la musique"
             value={musique}
@@ -103,7 +111,7 @@ function App() {
           />
 
           <input
-            placeholder="Nom de l'artiste"
+            placeholder="Nom de l'artiste (optionnel)"
             value={artiste}
             onChange={(e) => setArtiste(e.target.value)}
           />
@@ -126,20 +134,21 @@ function App() {
           {!resultat && (
             <div className="box">
               <p><b>Aucun résultat</b></p>
-              <p>Recherche une musique pour afficher les infos ici!</p>
+              <p>Recherche une musique pour afficher les infos ici !</p>
             </div>
           )}
 
           {resultat && (
             <div className="box">
               <p><b>Nom :</b> {resultat.name}</p>
-              <p><b>Artiste :</b> {artiste}</p>
+              {artiste && (
+                <p><b>Artiste :</b> {artiste}</p>
+              )}
               <p><b>Album :</b> {resultat.album}</p>
               <p><b>Popularité :</b> {resultat.popularity}</p>
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
