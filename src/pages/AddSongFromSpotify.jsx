@@ -4,6 +4,7 @@ import axios from "axios";
 function AddSongFromSpotify({ onBack }) {
   const [artist, setArtist] = useState("");
   const [songName, setSongName] = useState("");
+  const [artistName, setArtistName] = useState("");
   const [songs, setSongs] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ function AddSongFromSpotify({ onBack }) {
 
   const searchSongs = async () => {
     if (!artist) {
-      setMessage("Entre le nom de l’artiste");
+      setMessage("Entre le nom de l'artiste");
       return;
     }
 
@@ -22,7 +23,7 @@ function AddSongFromSpotify({ onBack }) {
 
     try {
       const res = await axios.get(
-        `${HOST}spotify/${artist}`,
+        `${HOST}spotify/songs/${artist}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -31,6 +32,7 @@ function AddSongFromSpotify({ onBack }) {
       );
 
       let fetchedSongs = res.data.data || [];
+      let fetchedArtistInfo = res.data.artist.name || "";
 
    
       if (songName) {
@@ -44,8 +46,10 @@ function AddSongFromSpotify({ onBack }) {
       }
 
       setSongs(fetchedSongs);
+      setArtistName(fetchedArtistInfo);
+      set
     } catch (err) {
-      setMessage("Erreur appel Spotify");
+      console.log("Erreur appel Spotify");
     } finally {
       setLoading(false);
     }
@@ -58,11 +62,11 @@ function AddSongFromSpotify({ onBack }) {
       </button>
 
       <h1 style={{ marginTop: 20 }}>
-        Ajouter une musique depuis Spotify
+        Rechercher les musiques d'un artiste
       </h1>
 
       <input
-        placeholder="Nom de l’artiste"
+        placeholder="Nom de l'artiste"
         value={artist}
         onChange={(e) => setArtist(e.target.value)}
       />
@@ -89,6 +93,7 @@ function AddSongFromSpotify({ onBack }) {
               borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}
           >
+            <p>Artiste: {artistName}</p>
             <b>{song.name}</b>
             <p style={{ opacity: 0.7 }}>
               {song.album}

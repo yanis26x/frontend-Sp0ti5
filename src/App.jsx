@@ -213,7 +213,7 @@ if (page === "add-song") {
   className="topbar-btn"
   onClick={() => setPage("add-song")}
 >
-  + Ajouter musique
+  + Recherche d'artiste
 </button>
 
 
