@@ -11,6 +11,10 @@ function App() {
   const [playlistName, setPlaylistName] = useState("");
   const [playlistMsg, setPlaylistMsg] = useState("");
 
+  const [playlists, setPlaylists] = useState([]);
+  const [selectedPlaylist, setSelectedPlaylist] = useState("");
+  const [addSongMsg, setAddSongMsg] = useState("");
+
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
@@ -31,6 +35,25 @@ function App() {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
+  // 🔥 Charger les playlists
+  const loadPlaylists = async () => {
+    try {
+      const res = await axios.get(`${HOST}playlists`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      setPlaylists(res.data);
+    } catch (err) {
+      console.error("Erreur chargement playlists");
+    }
+  };
+
+  useEffect(() => {
+    if (user) loadPlaylists();
+  }, [user]);
+
   const chercher = async () => {
     if (!musique) {
       alert("Remplis au moins le nom de la musique !");
@@ -41,7 +64,6 @@ function App() {
       const params = new URLSearchParams();
       params.append("name", musique);
 
-      // artiste OPTIONNEL
       if (artiste.trim() !== "") {
         params.append("artist", artiste);
       }
@@ -51,6 +73,7 @@ function App() {
       );
 
       setResultat(res.data.data);
+      setAddSongMsg("");
     } catch (err) {
       alert("Erreur ou musique introuvable..");
     }
@@ -73,14 +96,43 @@ function App() {
         }
       );
 
-      setPlaylistMsg("Playlist créée avec succès !");
+      setPlaylistMsg("Playlist créée !");
       setPlaylistName("");
+      loadPlaylists();
     } catch (err) {
-      setPlaylistMsg("Erreur lors de la création de la playlist");
+      setPlaylistMsg("Erreur création playlist");
     }
   };
 
-  // Page login/register
+  const ajouterMusiquePlaylist = async () => {
+    if (!selectedPlaylist) {
+      alert("Choisis une playlist !");
+      return;
+    }
+
+    if (!resultat?.id) {
+      alert("Aucune musique sélectionnée");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${HOST}playlists/${selectedPlaylist}/songs`,
+        { songId: resultat.id },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setAddSongMsg("Musique ajoutée à la playlist !");
+    } catch (err) {
+      setAddSongMsg("Erreur ajout musique");
+    }
+  };
+
+  // AUTH
   if (page === "auth") {
     return (
       <Auth
@@ -95,14 +147,7 @@ function App() {
 
   return (
     <div className="page">
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: "13px",
-          opacity: 0.7,
-          marginBottom: "14px",
-        }}
-      >
+      <div style={{ textAlign: "center", fontSize: "13px", opacity: 0.7 }}>
         Fait par : Yanis, William, Reda, Manassé
       </div>
 
@@ -112,7 +157,6 @@ function App() {
             Login
           </button>
         )}
-
         {user && (
           <button className="topbar-btn logout" onClick={logout}>
             Déconnexion
@@ -121,9 +165,9 @@ function App() {
       </div>
 
       <div className="content">
-
+        {/* GAUCHE */}
         <div className="left">
-          <h1>Chercher une musique !</h1>
+          <h1>Chercher une musique</h1>
 
           <input
             placeholder="Nom de la musique"
@@ -139,17 +183,6 @@ function App() {
 
           <button onClick={chercher}>Chercher</button>
 
-          <div className="prFaireVite">
-            <button
-              onClick={() => {
-                setMusique("God's Plan");
-                setArtiste("Drake");
-              }}
-            >
-              Auto remplir : God's Plan / Drake
-            </button>
-          </div>
-
           <hr style={{ margin: "30px 0", opacity: 0.2 }} />
 
           <h1>Créer une playlist</h1>
@@ -160,50 +193,48 @@ function App() {
             onChange={(e) => setPlaylistName(e.target.value)}
           />
 
-          <button onClick={creerPlaylist}>Créer la playlist</button>
+          <button onClick={creerPlaylist}>Créer</button>
 
-          {playlistMsg && (
-            <p
-              style={{
-                marginTop: "12px",
-                fontSize: "14px",
-                opacity: 0.8,
-              }}
-            >
-              {playlistMsg}
-            </p>
-          )}
+          {playlistMsg && <p>{playlistMsg}</p>}
         </div>
 
+        {/* DROITE */}
         <div className="right">
           {!resultat && (
             <div className="box">
-              <p>
-                <b>Aucun résultat</b>
-              </p>
-              <p>Recherche une musique pour afficher les infos ici !</p>
+              <p><b>Aucun résultat</b></p>
             </div>
           )}
 
           {resultat && (
             <div className="box">
-              <p>
-                <b>Nom :</b> {resultat.name}
-              </p>
+              <p><b>Nom :</b> {resultat.name}</p>
+              {artiste && <p><b>Artiste :</b> {artiste}</p>}
+              <p><b>Album :</b> {resultat.album}</p>
 
-              {artiste && (
-                <p>
-                  <b>Artiste :</b> {artiste}
-                </p>
-              )}
+              <hr style={{ margin: "20px 0", opacity: 0.2 }} />
 
-              <p>
-                <b>Album :</b> {resultat.album}
-              </p>
+              <select
+                value={selectedPlaylist}
+                onChange={(e) => setSelectedPlaylist(e.target.value)}
+                style={{ padding: "12px", borderRadius: "8px" }}
+              >
+                <option value="">-- Choisir une playlist --</option>
+                {playlists.map((p) => (
+                  <option key={p._id} value={p._id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
 
-              <p>
-                <b>Popularité :</b> {resultat.popularity}
-              </p>
+              <button
+                style={{ marginTop: "15px" }}
+                onClick={ajouterMusiquePlaylist}
+              >
+                ➕ Ajouter à la playlist
+              </button>
+
+              {addSongMsg && <p style={{ marginTop: "10px" }}>{addSongMsg}</p>}
             </div>
           )}
         </div>
