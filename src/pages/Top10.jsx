@@ -29,9 +29,7 @@ function Top10({ onBack }) {
 
   return (
     <div className="page">
-      <button className="topbar-btn" onClick={onBack}>
-        ← Retour
-      </button>
+      <button className="topbar-btn" onClick={onBack}>← Retour</button>
 
       <h1 style={{ marginTop: "25px" }}>
         Top 10 musiques les plus écoutées

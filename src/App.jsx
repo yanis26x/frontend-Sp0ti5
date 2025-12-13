@@ -4,6 +4,11 @@ import "./App.css";
 import Auth from "./auth";
 import GenreChart from "./components/GenreChart";
 import Top10 from "./pages/Top10";
+import Top10ArtistsPopularity from "./pages/Top10ArtistsPopularity";
+import Top10Genres from "./pages/Top10Genres";
+import Top10NewestSongs from "./pages/Top10NewestSongs";
+import Top10OldestSongs from "./pages/Top10OldestSongs";
+import Top10Years from "./pages/Top10Years";
 
 
 
@@ -131,6 +136,25 @@ function App() {
   if (page === "top10") {
   return <Top10 goBack={() => setPage("home")} />;
 }
+if (page === "top10-artists") {
+  return <Top10ArtistsPopularity onBack={() => setPage("home")} />;
+}
+
+if (page === "top10-genres") {
+  return <Top10Genres onBack={() => setPage("home")} />;
+}
+if (page === "top10-newest") {
+  return <Top10NewestSongs onBack={() => setPage("home")} />;
+}
+
+if (page === "top10-oldest") {
+  return <Top10OldestSongs onBack={() => setPage("home")} />;
+}
+
+if (page === "top10-years") {
+  return <Top10Years onBack={() => setPage("home")} />;
+}
+
 
 
   return (
@@ -138,9 +162,8 @@ function App() {
     <div className="page">
       
       <div className="topbar">
-        <button className="topbar-btn" onClick={() => setPage("top10")}>
-    Top 10
-  </button>
+
+
         
         {!user ? (
           <button className="topbar-btn" onClick={() => setPage("auth")}>
@@ -155,8 +178,8 @@ function App() {
       
 
       <div className="content">
-        {/* LEFT */}
         <div className="left">
+          
           <h1>Mes playlists</h1>
 
           <div className="playlist-grid">
@@ -199,7 +222,7 @@ function App() {
           <button onClick={() => chercher()}>Chercher</button>
         </div>
 
-        {/* RIGHT */}
+
         <div className="right">
           <div className="box">
             <h3>Genres</h3>
@@ -217,6 +240,14 @@ function App() {
               ))}
             </div>
           )}
+                  <button className="topbar-btn" onClick={() => setPage("top10")}>
+    Top 10 musiques 
+  </button>
+  <button onClick={() => setPage("top10-artists")}>Top 10 artistes</button>
+<button onClick={() => setPage("top10-genres")}>Top 10 genres</button>
+<button onClick={() => setPage("top10-newest")}>Top 10 récentes</button>
+<button onClick={() => setPage("top10-oldest")}>Top 10 anciennes</button>
+<button onClick={() => setPage("top10-years")}>Top 10 années</button>
 
           {resultat && !isLoading && (
             <div className="box">
@@ -229,9 +260,11 @@ function App() {
                   >
                     Ajouter
                   </button>
+                  
                 </div>
               ))}
             </div>
+            
           )}
         </div>
       </div>
