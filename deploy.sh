@@ -1,0 +1,85 @@
+#!/bin/bash
+
+echo "=========================================="
+echo "SPOTIFEW FRONTEND DEPLOYMENT"
+echo "=========================================="
+
+# Load environment variables from prod.json file
+echo "Loading environment variables from prod.json..."
+if [ ! -f prod.json ]; then
+    echo "Error: prod.json file not found!"
+    echo "Please create prod.json file from prod.json.example first:"
+    echo "cp prod.json.example prod.json"
+    echo "Then edit prod.json with your real values"
+    exit 1
+fi
+
+# Get EC2 public IP
+echo "Getting EC2 public IP..."
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+MY_PUBLIC_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+echo "EC2 Public IP: $MY_PUBLIC_IP"
+
+# Extract base domain from DOMAIN
+DOMAIN_BASE=$(echo "$DOMAIN" | cut -d'.' -f1)
+echo "DuckDNS base domain: $DOMAIN_BASE"
+
+# Update DuckDNS domain
+echo "Updating DuckDNS domain: $DOMAIN_BASE"
+echo url="https://www.duckdns.org/update?domains=$DOMAIN_BASE&token=$DUCKDNS_TOKEN&ip=$MY_PUBLIC_IP" | curl -k -K -
+if [ $? -eq 0 ]; then
+    echo "DuckDNS updated successfully"
+else
+    echo "Warning: DuckDNS update failed. Check your token and domain."
+fi
+sleep 3
+
+# Clean up any existing containers and volumes
+echo "Cleaning up existing containers and volumes..."
+sudo -E docker compose down -v || true
+sleep 5
+sudo docker volume prune -f || true
+sudo docker system prune -a --volumes -f || true
+sleep 15
+
+# ACME certificate : read/write for only for owner of ./data/traefik/letsencrypt
+# Create directory and file as root so Traefik (running as root in container) can write to it
+echo "Setting up ACME certificate storage..."
+sudo mkdir -p ./data/traefik/letsencrypt
+if [ -f ./data/traefik/letsencrypt/acme.json ]; then
+    sudo chmod 600 ./data/traefik/letsencrypt/acme.json
+else
+    sudo touch ./data/traefik/letsencrypt/acme.json
+    sudo chmod 600 ./data/traefik/letsencrypt/acme.json
+fi
+
+# Use sudo -E to preserve environment variables
+echo "Starting Docker services..."
+sudo -E docker compose up -d --build
+
+echo "Waiting for services to start..."
+sleep 30
+
+echo "=========================================="
+echo "SERVICE LOGS"
+echo "=========================================="
+echo "Traefik logs:"
+sudo docker logs traefik --tail 20 || echo "Traefik not running yet"
+
+echo ""
+echo "Frontend logs:"
+sudo docker logs ${FRONTEND_CONTAINER} --tail 10 || echo "Frontend not running yet"
+
+echo "=========================================="
+echo "DEPLOYMENT COMPLETE"
+echo "=========================================="
+echo "All services started"
+echo "DuckDNS domain updated"
+echo "SSL certificates will be generated automatically"
+echo ""
+echo "Your application should be available at:"
+echo "Frontend URL:      https://${FRONTEND_DOMAIN}"
+echo "Traefik:      https://${TRAEFIK_DOMAIN}"
+echo ""
+echo "Note: SSL certificates may take a few minutes to generate"
+echo "=========================================="
