@@ -18,6 +18,7 @@ import AddSongFromSpotify from "./pages/AddSongFromSpotify";
 function App() {
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
+  const [hasNextPage, setHasNextPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
   const [playlistMsg, setPlaylistMsg] = useState("");
@@ -75,6 +76,7 @@ function App() {
     if (res.data.songs?.length) {
       setResultat(res.data.songs);
       setCurrentPage(pageNum);
+      setHasNextPage(res.data.pagination.hasNextPage);
     } else {
       setResultat(null);
     }
@@ -284,12 +286,18 @@ if (page === "add-song") {
         ← Previous
       </button>
 
-      <button
+      {hasNextPage && (<button
         className="topbar-btn"
         onClick={() => chercher(currentPage + 1)}
       >
         Next →
-      </button>
+      </button>)}
+
+      {!hasNextPage && (<button
+        className="disabledButton"
+      >
+        Next →
+      </button>)}
     </div>
   </div>
 )}
