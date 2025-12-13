@@ -2,22 +2,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 import Auth from "./auth";
+import GenreChart from "./components/GenreChart";
 
 function App() {
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
-
   const [playlistName, setPlaylistName] = useState("");
   const [playlistMsg, setPlaylistMsg] = useState("");
 
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [playlistSongs, setPlaylistSongs] = useState([]);
-
-  const [addSongMsg, setAddSongMsg] = useState("");
 
   const [page, setPage] = useState("home");
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,127 +33,84 @@ function App() {
   }, []);
 
   const loadPlaylists = async () => {
-    try {
-      const res = await axios.get(`${HOST}playlists`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      setPlaylists(res.data.data);
-    } catch { }
+    const res = await axios.get(`${HOST}playlists`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    setPlaylists(res.data.data);
   };
 
   const loadPlaylistSongs = async (playlistId) => {
-  try {
     const res = await axios.get(
       `${HOST}playlists/${playlistId}/songs/details`,
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       }
     );
-
-    console.log("PLAYLIST SONGS DETAILS:", res.data.songs);
-
     setPlaylistSongs(res.data.songs);
-  } catch (err) {
-    console.error("LOAD PLAYLIST SONGS ERROR:", err.response || err);
-  }
-};
-
+  };
 
   useEffect(() => {
     if (user) loadPlaylists();
   }, [user]);
 
   const chercher = async (pageNum = 1) => {
-    if (!keyword) {
-      alert("Tape au moins quelques lettres");
-      return;
-    }
+    if (!keyword) return alert("Tape au moins quelques lettres");
 
     setIsLoading(true);
-    try {
-      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`);
-      if (res.data.songs && res.data.songs.length > 0) {
-        setResultat(res.data.songs);
-        setCurrentPage(pageNum);
-        setHasNextPage(res.data.pagination.hasNextPage);
-        setHasPreviousPage(res.data.pagination.hasPreviousPage);
-      } else {
-        setResultat(null);
-      }
-    } catch (error) {
-      console.error("Erreur recherche:", error);
+    const res = await axios.get(
+      `${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`
+    );
 
-    } finally {
-      setIsLoading(false);
+    if (res.data.songs?.length) {
+      setResultat(res.data.songs);
+      setCurrentPage(pageNum);
+    } else {
+      setResultat(null);
     }
+
+    setIsLoading(false);
   };
 
   const creerPlaylist = async () => {
     if (!playlistName) return alert("Entre un nom de playlist");
 
-    try {
-      await axios.post(
-        `${HOST}playlists`,
-        { name: playlistName },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+    await axios.post(
+      `${HOST}playlists`,
+      { name: playlistName },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
 
-      setPlaylistMsg("Playlist créée !");
-      setPlaylistName("");
-      loadPlaylists();
-    } catch {
-      setPlaylistMsg("Erreur création playlist");
-    }
+    setPlaylistMsg("Playlist créée !");
+    setPlaylistName("");
+    loadPlaylists();
   };
 
   const supprimerPlaylist = async () => {
     if (!selectedPlaylist) return;
 
-    try {
-      await axios.delete(`${HOST}playlists/${selectedPlaylist._id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    await axios.delete(`${HOST}playlists/${selectedPlaylist._id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
 
-      setSelectedPlaylist(null);
-      setPlaylistSongs([]);
-      loadPlaylists();
-    } catch {
-      alert("Erreur suppression playlist");
-    }
+    setSelectedPlaylist(null);
+    setPlaylistSongs([]);
+    loadPlaylists();
   };
 
   const ajouterMusiquePlaylist = async (songId) => {
-    if (!selectedPlaylist) {
-      alert("Sélectionne une playlist");
-      return;
-    }
+    if (!selectedPlaylist) return alert("Sélectionne une playlist");
 
-    try {
-      await axios.post(
-        `${HOST}playlists/${selectedPlaylist._id}/songs`,
-        { songId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+    await axios.post(
+      `${HOST}playlists/${selectedPlaylist._id}/songs`,
+      { songId },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
 
-      setAddSongMsg("Musique ajoutée !");
-      loadPlaylistSongs(selectedPlaylist._id);
-    } catch {
-      setAddSongMsg("Erreur ajout musique");
-    }
+    loadPlaylistSongs(selectedPlaylist._id);
   };
 
   if (page === "auth") {
@@ -174,17 +127,12 @@ function App() {
 
   return (
     <div className="page">
-      <div style={{ textAlign: "center", fontSize: "13px", opacity: 0.7 }}>
-        Fait par : Yanis, William, Reda, Manassé
-      </div>
-
       <div className="topbar">
-        {!user && (
+        {!user ? (
           <button className="topbar-btn" onClick={() => setPage("auth")}>
             Login
           </button>
-        )}
-        {user && (
+        ) : (
           <button className="topbar-btn logout" onClick={logout}>
             Déconnexion
           </button>
@@ -192,130 +140,82 @@ function App() {
       </div>
 
       <div className="content">
+        {/* LEFT */}
         <div className="left">
           <h1>Mes playlists</h1>
 
-          {playlists.length === 0 && user && (
-            <p style={{ opacity: 0.7 }}>
-              Aucune playlist pour <b>{user.name}</b>, crée-en une.
-            </p>
-          )}
-
-          {playlists.map((p) => (
-            <button
-              key={p._id}
-              style={{
-                marginBottom: "10px",
-                background:
-                  selectedPlaylist?._id === p._id
-                    ? "linear-gradient(135deg, #1e50ff, #3a7bff)"
-                    : "rgba(255,255,255,0.1)",
-              }}
-              onClick={() => {
-                setSelectedPlaylist(p);
-                loadPlaylistSongs(p._id);
-              }}
-            >
-              {p.name}
-            </button>
-          ))}
-
-          <hr style={{ margin: "25px 0", opacity: 0.2 }} />
+          <div className="playlist-grid">
+            {playlists.map((p) => (
+              <div
+                key={p._id}
+                className={`playlist-card ${
+                  selectedPlaylist?._id === p._id ? "active" : ""
+                }`}
+                onClick={() => {
+                  setSelectedPlaylist(p);
+                  loadPlaylistSongs(p._id);
+                }}
+              >
+                <img
+                  src="src/assets/huhh_playlist.png"
+                  alt="playlist"
+                  className="playlist-img"
+                />
+                <div className="playlist-title">{p.name}</div>
+              </div>
+            ))}
+          </div>
 
           <h1>Créer une playlist</h1>
-
           <input
             placeholder="Nom de la playlist"
             value={playlistName}
             onChange={(e) => setPlaylistName(e.target.value)}
           />
-
           <button onClick={creerPlaylist}>Créer</button>
           {playlistMsg && <p>{playlistMsg}</p>}
 
-          <hr style={{ margin: "25px 0", opacity: 0.2 }} />
-
           <h1>Recherche musique</h1>
-
           <input
             placeholder="Tape un nom"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
-
-          <button onClick={() => {
-            chercher();
-          }}>Chercher</button>
+          <button onClick={() => chercher()}>Chercher</button>
         </div>
 
+        {/* RIGHT */}
         <div className="right">
+          <div className="box">
+            <h3>Genres</h3>
+            <GenreChart />
+          </div>
+
           {selectedPlaylist && (
-            <div className="box" style={{ marginBottom: "25px" }}>
+            <div className="box">
               <h3>{selectedPlaylist.name}</h3>
-
-              <button
-                style={{
-                  marginTop: "14px",
-                  background: "rgba(255, 0, 0, 0.25)",
-                }}
-                onClick={supprimerPlaylist}
-              >
-                Supprimer la playlist...
+              <button className="danger" onClick={supprimerPlaylist}>
+                Supprimer la playlist
               </button>
-
-              {playlistSongs.length === 0 && (
-                <p style={{ opacity: 0.7 }}>
-                  Aucune musique dans cette playlist
-                </p>
-              )}
-
               {playlistSongs.map((s) => (
-                <p key={s._id}>!! {s.name}</p>
+                <p key={s._id}>🎵 {s.name}</p>
               ))}
-            </div>
-          )}
-
-          {(!resultat || resultat == null) && (
-            <div className="box">
-              <b>Aucun résultat</b>
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="box">
-              <b>Chargement...</b>
             </div>
           )}
 
           {resultat && !isLoading && (
             <div className="box">
               <h3>Résultats</h3>
-
               {resultat.map((song) => (
-                <div key={song._id} style={{ marginBottom: "16px" }}>
-                  <p>
-                    <b>{song.name}</b>
-                  </p>
-                  <p style={{ opacity: 0.7 }}>{song.album}</p>
-
-                  {selectedPlaylist && (
-                    <button
-                      style={{ marginTop: "8px" }}
-                      onClick={() => ajouterMusiquePlaylist(song._id)}
-                    >
-                      Ajouter à "{selectedPlaylist.name}"
-                    </button>
-                  )}
+                <div key={song._id} className="song-row">
+                  <b>{song.name}</b>
+                  <button
+                    onClick={() => ajouterMusiquePlaylist(song._id)}
+                  >
+                    Ajouter
+                  </button>
                 </div>
               ))}
-
-              {hasPreviousPage && (<button
-                onClick={() => chercher(currentPage - 1)} >  Previous </button>)}
-              {!hasPreviousPage && (<button className="disabledButton"> Previous</button>)}
-
-
-              {hasNextPage && (<button onClick={() => chercher(currentPage + 1)} > Next </button>)}
-              {!hasNextPage && (<button className="disabledButton">Next</button>)}
             </div>
           )}
         </div>

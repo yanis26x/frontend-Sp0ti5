@@ -141,3 +141,43 @@ button {
     margin-top: 30px;
   }
 }
+
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 22px;
+  margin-bottom: 35px;
+}
+
+
+.playlist-card {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 18px;
+
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+
+
+.playlist-card.active {
+  outline: 3px solid #00e5ff;
+}
+
+
+.playlist-img {
+  width: 100%;
+  height: 200px;          
+  object-fit: contain;   
+  background: #00000000;       
+  padding: 12px;
+}
+
+
+.playlist-title {
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: white;
+}
