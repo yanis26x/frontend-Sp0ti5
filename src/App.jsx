@@ -3,6 +3,24 @@ import axios from "axios";
 import "./App.css";
 import Auth from "./auth";
 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+  Legend
+);
+
 function App() {
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
@@ -22,6 +40,9 @@ function App() {
   const [page, setPage] = useState("home");
   const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState(null);
+
+  const [genreStats, setGenreStats] = useState(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   const HOST = import.meta.env.VITE_API_URL;
 
@@ -70,7 +91,9 @@ function App() {
 
     setIsLoading(true);
     try {
-      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`);
+      const res = await axios.get(
+        `${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`
+      );
       if (res.data.songs && res.data.songs.length > 0) {
         setResultat(res.data.songs);
         setCurrentPage(pageNum);
@@ -81,7 +104,6 @@ function App() {
       }
     } catch (error) {
       console.error("Erreur recherche:", error);
-
     } finally {
       setIsLoading(false);
     }
@@ -150,6 +172,48 @@ function App() {
       setAddSongMsg("Erreur ajout musique");
     }
   };
+
+  const loadGenreStats = async () => {
+    setIsLoadingStats(true);
+    try {
+      const res = await axios.get(`${HOST}topstats/genres`);
+      setGenreStats(res.data);
+    } catch {
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    loadGenreStats();
+  }, []);
+
+  let chartData = null;
+
+  if (genreStats) {
+    let labels = [];
+    let values = [];
+
+    if (Array.isArray(genreStats)) {
+      labels = genreStats.map((g) => g.genre);
+      values = genreStats.map((g) => g.count);
+    } else {
+      labels = Object.keys(genreStats);
+      values = Object.values(genreStats);
+    }
+
+    chartData = {
+      labels,
+      datasets: [
+        {
+          label: "Nombre de musiques",
+          data: values,
+          backgroundColor: "rgba(30, 80, 255, 0.7)",
+          borderRadius: 8,
+        },
+      ],
+    };
+  }
 
   if (page === "auth") {
     return (
@@ -234,12 +298,27 @@ function App() {
             onChange={(e) => setKeyword(e.target.value)}
           />
 
-          <button onClick={() => {
-            chercher();
-          }}>Chercher</button>
+          <button onClick={() => chercher()}>Chercher</button>
         </div>
 
         <div className="right">
+          <div className="box" style={{ marginBottom: "25px" }}>
+            <h3>Répartition des musiques par genre</h3>
+
+            {isLoadingStats && <p>Chargement...</p>}
+
+            {chartData && (
+              <Bar
+                data={chartData}
+                options={{
+                  responsive: true,
+                  plugins: { legend: { display: false } },
+                  scales: { y: { beginAtZero: true } },
+                }}
+              />
+            )}
+          </div>
+
           {selectedPlaylist && (
             <div className="box" style={{ marginBottom: "25px" }}>
               <h3>{selectedPlaylist.name}</h3>
@@ -284,9 +363,7 @@ function App() {
 
               {resultat.map((song) => (
                 <div key={song._id} style={{ marginBottom: "16px" }}>
-                  <p>
-                    <b>{song.name}</b>
-                  </p>
+                  <p><b>{song.name}</b></p>
                   <p style={{ opacity: 0.7 }}>{song.album}</p>
 
                   {selectedPlaylist && (
@@ -294,19 +371,23 @@ function App() {
                       style={{ marginTop: "8px" }}
                       onClick={() => ajouterMusiquePlaylist(song._id)}
                     >
-                      ➕ Ajouter à "{selectedPlaylist.name}"
+                      Ajouter à "{selectedPlaylist.name}"
                     </button>
                   )}
                 </div>
               ))}
 
-              {hasPreviousPage && (<button
-                onClick={() => chercher(currentPage - 1)} >  Previous </button>)}
-              {!hasPreviousPage && (<button className="disabledButton"> Previous</button>)}
+              {hasPreviousPage ? (
+                <button onClick={() => chercher(currentPage - 1)}>Previous</button>
+              ) : (
+                <button className="disabledButton">Previous</button>
+              )}
 
-
-              {hasNextPage && (<button onClick={() => chercher(currentPage + 1)} > Next </button>)}
-              {!hasNextPage && (<button className="disabledButton">Next</button>)}
+              {hasNextPage ? (
+                <button onClick={() => chercher(currentPage + 1)}>Next</button>
+              ) : (
+                <button className="disabledButton">Next</button>
+              )}
             </div>
           )}
         </div>
