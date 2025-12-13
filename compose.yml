@@ -8,6 +8,9 @@ services:
     networks:
       - spotifew-network
     environment:
+      - VITE_PORT=${VITE_PORT}
+      - FRONTEND_DOMAIN=${FRONTEND_DOMAIN}
+      - DOMAIN=${DOMAIN}
       - NODE_ENV=${NODE_ENV}
       - VITE_API_URL=${VITE_API_URL}
     labels:
