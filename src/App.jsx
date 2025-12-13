@@ -19,11 +19,7 @@ function App() {
   const [page, setPage] = useState("home");
   const [user, setUser] = useState(null);
 
-  // ============================
-  //   COMME ICI STRUCTURE
-  // ============================
   const HOST = import.meta.env.VITE_API_URL;
-  // ============================
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -44,9 +40,7 @@ function App() {
         },
       });
       setPlaylists(res.data);
-    } catch {
-      console.error("Erreur chargement playlists");
-    }
+    } catch {}
   };
 
   const loadPlaylistSongs = async (playlistId) => {
@@ -57,9 +51,7 @@ function App() {
         },
       });
       setPlaylistSongs(res.data.songs || []);
-    } catch {
-      console.error("Erreur chargement musiques playlist");
-    }
+    } catch {}
   };
 
   useEffect(() => {
@@ -80,7 +72,7 @@ function App() {
       alert("Erreur recherche");
     }
   };
-  //CRUD???
+
   const creerPlaylist = async () => {
     if (!playlistName) return alert("Entre un nom de playlist");
 
@@ -100,6 +92,24 @@ function App() {
       loadPlaylists();
     } catch {
       setPlaylistMsg("Erreur création playlist");
+    }
+  };
+
+  const supprimerPlaylist = async () => {
+    if (!selectedPlaylist) return;
+
+    try {
+      await axios.delete(`${HOST}playlists/${selectedPlaylist._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      setSelectedPlaylist(null);
+      setPlaylistSongs([]);
+      loadPlaylists();
+    } catch {
+      alert("Erreur suppression playlist");
     }
   };
 
@@ -214,10 +224,19 @@ function App() {
         </div>
 
         <div className="right">
-          {/* PLAYLIST CHOISI*/}
           {selectedPlaylist && (
             <div className="box" style={{ marginBottom: "25px" }}>
               <h3>{selectedPlaylist.name}</h3>
+
+              <button
+                style={{
+                  marginBottom: "15px",
+                  background: "rgba(255,80,80,0.25)",
+                }}
+                onClick={supprimerPlaylist}
+              >
+                🗑 Supprimer la playlist
+              </button>
 
               {playlistSongs.length === 0 && (
                 <p style={{ opacity: 0.7 }}>
