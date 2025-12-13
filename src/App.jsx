@@ -6,6 +6,9 @@ import Auth from "./auth";
 function App() {
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
   const [playlistName, setPlaylistName] = useState("");
   const [playlistMsg, setPlaylistMsg] = useState("");
@@ -17,6 +20,7 @@ function App() {
   const [addSongMsg, setAddSongMsg] = useState("");
 
   const [page, setPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState(null);
 
   const HOST = import.meta.env.VITE_API_URL;
@@ -39,7 +43,7 @@ function App() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      setPlaylists(res.data);
+      setPlaylists(res.data.data);
     } catch {}
   };
 
@@ -58,18 +62,26 @@ function App() {
     if (user) loadPlaylists();
   }, [user]);
 
-  const chercher = async () => {
+  const chercher = async (pageNum = 1) => {
     if (!keyword) {
       alert("Tape au moins quelques lettres");
       return;
     }
 
+    setIsLoading(true);
     try {
-      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}`);
-      setResultat(res.data.data);
-      setAddSongMsg("");
-    } catch {
-      alert("Erreur recherche");
+      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`);
+      if (res.data.songs && res.data.songs.length > 0) {
+        setResultat(res.data.songs);
+        setCurrentPage(pageNum);
+        setHasNextPage(res.data.pagination.hasNextPage)
+        setHasPreviousPage(res.data.pagination.hasPreviousPage)
+      }
+    } catch (error) {
+      console.error("Erreur recherche:", error);
+      
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -177,7 +189,7 @@ function App() {
               Aucune playlist pour <b>{user.name}</b>, crée-en une.
             </p>
           )}
-
+          
           {playlists.map((p) => (
             <button
               key={p._id}
@@ -220,7 +232,9 @@ function App() {
             onChange={(e) => setKeyword(e.target.value)}
           />
 
-          <button onClick={chercher}>Chercher</button>
+          <button onClick={() => {
+            chercher();
+          }}>Chercher</button>
         </div>
 
         <div className="right">
@@ -245,7 +259,7 @@ function App() {
               )}
 
               {playlistSongs.map((s) => (
-                <p key={s.id}>🎵 {s.name}</p>
+                <p key={s._id}>🎵 {s.name}</p>
               ))}
             </div>
           )}
@@ -256,12 +270,18 @@ function App() {
             </div>
           )}
 
-          {Array.isArray(resultat) && (
+          {isLoading && (
+            <div className="box">
+              <b>Chargement...</b>
+            </div>
+          )}
+
+          {resultat && !isLoading && (
             <div className="box">
               <h3>Résultats</h3>
 
               {resultat.map((song) => (
-                <div key={song.id} style={{ marginBottom: "16px" }}>
+                <div key={song._id} style={{ marginBottom: "16px" }}>
                   <p>
                     <b>{song.name}</b>
                   </p>
@@ -270,7 +290,7 @@ function App() {
                   {selectedPlaylist && (
                     <button
                       style={{ marginTop: "8px" }}
-                      onClick={() => ajouterMusiquePlaylist(song.id)}
+                      onClick={() => ajouterMusiquePlaylist(song._id)}
                     >
                       ➕ Ajouter à "{selectedPlaylist.name}"
                     </button>
@@ -278,7 +298,13 @@ function App() {
                 </div>
               ))}
 
-              {addSongMsg && <p>{addSongMsg}</p>}
+              {hasPreviousPage && (<button 
+                onClick={() => chercher(currentPage - 1)} >  Previous </button>)}
+              {!hasPreviousPage && (<button className="disabledButton"> Previous</button>)}
+              
+
+              {hasNextPage && (<button onClick={() => chercher(currentPage + 1)} > Next </button>)}
+              {!hasNextPage && (<button className="disabledButton">Next</button>)}
             </div>
           )}
         </div>

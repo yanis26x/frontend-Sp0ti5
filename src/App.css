@@ -79,6 +79,14 @@ button {
   cursor: pointer;
 }
 
+.disabledButton{
+  background: linear-gradient(135deg, #ffffff1f, #6c6c6c);
+}
+
+.disabledButton:hover{
+  background: linear-gradient(135deg, #ffffff1f, #6c6c6c);
+}
+
 .prFaireVite button {
   margin-top: 14px;
   background: rgba(255,255,255,0.12);
