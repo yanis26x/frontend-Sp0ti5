@@ -3,16 +3,6 @@ import axios from "axios";
 import "./App.css";
 import Auth from "./auth";
 
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Pie } from "react-chartjs-2";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
 function App() {
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
@@ -32,9 +22,6 @@ function App() {
   const [page, setPage] = useState("home");
   const [currentPage, setCurrentPage] = useState(1);
   const [user, setUser] = useState(null);
-
-  const [genreStats, setGenreStats] = useState(null);
-  const [isLoadingStats, setIsLoadingStats] = useState(false);
 
   const HOST = import.meta.env.VITE_API_URL;
 
@@ -57,19 +44,28 @@ function App() {
         },
       });
       setPlaylists(res.data.data);
-    } catch {}
+    } catch { }
   };
 
   const loadPlaylistSongs = async (playlistId) => {
-    try {
-      const res = await axios.get(`${HOST}playlists/${playlistId}`, {
+  try {
+    const res = await axios.get(
+      `${HOST}playlists/${playlistId}/songs/details`,
+      {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      });
-      setPlaylistSongs(res.data.songs || []);
-    } catch {}
-  };
+      }
+    );
+
+    console.log("PLAYLIST SONGS DETAILS:", res.data.songs);
+
+    setPlaylistSongs(res.data.songs);
+  } catch (err) {
+    console.error("LOAD PLAYLIST SONGS ERROR:", err.response || err);
+  }
+};
+
 
   useEffect(() => {
     if (user) loadPlaylists();
@@ -83,10 +79,7 @@ function App() {
 
     setIsLoading(true);
     try {
-      const res = await axios.get(
-        `${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`
-      );
-
+      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`);
       if (res.data.songs && res.data.songs.length > 0) {
         setResultat(res.data.songs);
         setCurrentPage(pageNum);
@@ -95,7 +88,9 @@ function App() {
       } else {
         setResultat(null);
       }
-    } catch {
+    } catch (error) {
+      console.error("Erreur recherche:", error);
+
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +131,9 @@ function App() {
       setSelectedPlaylist(null);
       setPlaylistSongs([]);
       loadPlaylists();
-    } catch {}
+    } catch {
+      alert("Erreur suppression playlist");
+    }
   };
 
   const ajouterMusiquePlaylist = async (songId) => {
@@ -162,50 +159,6 @@ function App() {
       setAddSongMsg("Erreur ajout musique");
     }
   };
-
-  const loadGenreStats = async () => {
-    setIsLoadingStats(true);
-    try {
-      const res = await axios.get(`${HOST}topstats/genres`);
-      setGenreStats(res.data);
-    } catch {
-    } finally {
-      setIsLoadingStats(false);
-    }
-  };
-
-  useEffect(() => {
-    loadGenreStats();
-  }, []);
-
-  let chartData = {
-    labels: [],
-    datasets: [
-      {
-        data: [],
-        backgroundColor: [
-          "#1e50ff",
-          "#3a7bff",
-          "#00c2ff",
-          "#7c4dff",
-          "#ff4d4d",
-          "#00ff9d",
-          "#ffd84d",
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
-
-  if (genreStats) {
-    if (Array.isArray(genreStats)) {
-      chartData.labels = genreStats.map((g) => g.genre);
-      chartData.datasets[0].data = genreStats.map((g) => g.count);
-    } else {
-      chartData.labels = Object.keys(genreStats);
-      chartData.datasets[0].data = Object.values(genreStats);
-    }
-  }
 
   if (page === "auth") {
     return (
@@ -290,51 +243,24 @@ function App() {
             onChange={(e) => setKeyword(e.target.value)}
           />
 
-          <button onClick={() => chercher()}>Chercher</button>
+          <button onClick={() => {
+            chercher();
+          }}>Chercher</button>
         </div>
 
         <div className="right">
-          <div
-            className="box"
-            style={{ marginBottom: "25px", height: "260px" }}
-          >
-            <h3>Répartition des musiques par genre</h3>
-
-            {isLoadingStats && <p>Chargement...</p>}
-
-            <Pie
-              data={chartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: "bottom",
-                    labels: { color: "white" },
-                  },
-                },
-              }}
-            />
-
-            {chartData.labels.length === 0 && (
-              <p style={{ opacity: 0.6, marginTop: "10px" }}>
-                Aucune donnée disponible pour le moment
-              </p>
-            )}
-          </div>
-
           {selectedPlaylist && (
             <div className="box" style={{ marginBottom: "25px" }}>
               <h3>{selectedPlaylist.name}</h3>
 
               <button
                 style={{
-                  marginBottom: "15px",
-                  background: "rgba(255,80,80,0.25)",
+                  marginTop: "14px",
+                  background: "rgba(255, 0, 0, 0.25)",
                 }}
                 onClick={supprimerPlaylist}
               >
-                🗑 Supprimer la playlist
+                Supprimer la playlist...
               </button>
 
               {playlistSongs.length === 0 && (
@@ -344,7 +270,7 @@ function App() {
               )}
 
               {playlistSongs.map((s) => (
-                <p key={s._id}>!musi1ue! {s.name}</p>
+                <p key={s._id}>!! {s.name}</p>
               ))}
             </div>
           )}
@@ -367,7 +293,9 @@ function App() {
 
               {resultat.map((song) => (
                 <div key={song._id} style={{ marginBottom: "16px" }}>
-                  <p><b>{song.name}</b></p>
+                  <p>
+                    <b>{song.name}</b>
+                  </p>
                   <p style={{ opacity: 0.7 }}>{song.album}</p>
 
                   {selectedPlaylist && (
@@ -375,23 +303,19 @@ function App() {
                       style={{ marginTop: "8px" }}
                       onClick={() => ajouterMusiquePlaylist(song._id)}
                     >
-                      ➕ Ajouter à "{selectedPlaylist.name}"
+                      Ajouter à "{selectedPlaylist.name}"
                     </button>
                   )}
                 </div>
               ))}
 
-              {hasPreviousPage ? (
-                <button onClick={() => chercher(currentPage - 1)}>Previous</button>
-              ) : (
-                <button className="disabledButton">Previous</button>
-              )}
+              {hasPreviousPage && (<button
+                onClick={() => chercher(currentPage - 1)} >  Previous </button>)}
+              {!hasPreviousPage && (<button className="disabledButton"> Previous</button>)}
 
-              {hasNextPage ? (
-                <button onClick={() => chercher(currentPage + 1)}>Next</button>
-              ) : (
-                <button className="disabledButton">Next</button>
-              )}
+
+              {hasNextPage && (<button onClick={() => chercher(currentPage + 1)} > Next </button>)}
+              {!hasNextPage && (<button className="disabledButton">Next</button>)}
             </div>
           )}
         </div>
