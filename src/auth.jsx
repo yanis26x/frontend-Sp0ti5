@@ -8,10 +8,16 @@ export default function Auth({ goHome }) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
+  // ============================
+  //   COMME ICI STRUCTURE
+  // ============================
+  const HOST = import.meta.env.VITE_API_URL;
+  // ============================
+
   const handleSubmit = async () => {
     try {
       if (isLogin) {
-        const res = await axios.post("http://localhost:4000/auth/login", {
+        const res = await axios.post(`${HOST}auth/login`, {
           email,
           password,
         });
@@ -22,7 +28,7 @@ export default function Auth({ goHome }) {
         goHome();
 
       } else {
-        const res = await axios.post("http://localhost:4000/auth/register", {
+        const res = await axios.post(`${HOST}auth/register`, {
           email,
           password,
           name,
