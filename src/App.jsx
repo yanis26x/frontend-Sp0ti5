@@ -9,6 +9,8 @@ import Top10Genres from "./pages/Top10Genres";
 import Top10NewestSongs from "./pages/Top10NewestSongs";
 import Top10OldestSongs from "./pages/Top10OldestSongs";
 import Top10Years from "./pages/Top10Years";
+import AddSongFromSpotify from "./pages/AddSongFromSpotify";
+
 
 
 
@@ -154,6 +156,10 @@ if (page === "top10-oldest") {
 if (page === "top10-years") {
   return <Top10Years onBack={() => setPage("home")} />;
 }
+if (page === "add-song") {
+  return <AddSongFromSpotify onBack={() => setPage("home")} />;
+}
+
 
 
 
@@ -203,6 +209,13 @@ if (page === "top10-years") {
               </div>
             ))}
           </div>
+          <button
+  className="topbar-btn"
+  onClick={() => setPage("add-song")}
+>
+  + Ajouter musique
+</button>
+
 
           <h1>Créer une playlist</h1>
           <input
