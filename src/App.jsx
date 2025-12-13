@@ -5,21 +5,13 @@ import Auth from "./auth";
 
 import {
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
+  ArcElement,
   Tooltip,
   Legend,
 } from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Pie } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend
-);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 function App() {
   const [keyword, setKeyword] = useState("");
@@ -65,7 +57,7 @@ function App() {
         },
       });
       setPlaylists(res.data.data);
-    } catch { }
+    } catch {}
   };
 
   const loadPlaylistSongs = async (playlistId) => {
@@ -76,7 +68,7 @@ function App() {
         },
       });
       setPlaylistSongs(res.data.songs || []);
-    } catch { }
+    } catch {}
   };
 
   useEffect(() => {
@@ -94,6 +86,7 @@ function App() {
       const res = await axios.get(
         `${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`
       );
+
       if (res.data.songs && res.data.songs.length > 0) {
         setResultat(res.data.songs);
         setCurrentPage(pageNum);
@@ -102,8 +95,7 @@ function App() {
       } else {
         setResultat(null);
       }
-    } catch (error) {
-      console.error("Erreur recherche:", error);
+    } catch {
     } finally {
       setIsLoading(false);
     }
@@ -144,9 +136,7 @@ function App() {
       setSelectedPlaylist(null);
       setPlaylistSongs([]);
       loadPlaylists();
-    } catch {
-      alert("Erreur suppression playlist");
-    }
+    } catch {}
   };
 
   const ajouterMusiquePlaylist = async (songId) => {
@@ -188,31 +178,33 @@ function App() {
     loadGenreStats();
   }, []);
 
-  let chartData = null;
+  let chartData = {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [
+          "#1e50ff",
+          "#3a7bff",
+          "#00c2ff",
+          "#7c4dff",
+          "#ff4d4d",
+          "#00ff9d",
+          "#ffd84d",
+        ],
+        borderWidth: 0,
+      },
+    ],
+  };
 
   if (genreStats) {
-    let labels = [];
-    let values = [];
-
     if (Array.isArray(genreStats)) {
-      labels = genreStats.map((g) => g.genre);
-      values = genreStats.map((g) => g.count);
+      chartData.labels = genreStats.map((g) => g.genre);
+      chartData.datasets[0].data = genreStats.map((g) => g.count);
     } else {
-      labels = Object.keys(genreStats);
-      values = Object.values(genreStats);
+      chartData.labels = Object.keys(genreStats);
+      chartData.datasets[0].data = Object.values(genreStats);
     }
-
-    chartData = {
-      labels,
-      datasets: [
-        {
-          label: "Nombre de musiques",
-          data: values,
-          backgroundColor: "rgba(30, 80, 255, 0.7)",
-          borderRadius: 8,
-        },
-      ],
-    };
   }
 
   if (page === "auth") {
@@ -302,20 +294,32 @@ function App() {
         </div>
 
         <div className="right">
-          <div className="box" style={{ marginBottom: "25px" }}>
+          <div
+            className="box"
+            style={{ marginBottom: "25px", height: "260px" }}
+          >
             <h3>Répartition des musiques par genre</h3>
 
             {isLoadingStats && <p>Chargement...</p>}
 
-            {chartData && (
-              <Bar
-                data={chartData}
-                options={{
-                  responsive: true,
-                  plugins: { legend: { display: false } },
-                  scales: { y: { beginAtZero: true } },
-                }}
-              />
+            <Pie
+              data={chartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: "bottom",
+                    labels: { color: "white" },
+                  },
+                },
+              }}
+            />
+
+            {chartData.labels.length === 0 && (
+              <p style={{ opacity: 0.6, marginTop: "10px" }}>
+                Aucune donnée disponible pour le moment
+              </p>
             )}
           </div>
 
@@ -340,7 +344,7 @@ function App() {
               )}
 
               {playlistSongs.map((s) => (
-                <p key={s._id}>🎵 {s.name}</p>
+                <p key={s._id}>!musi1ue! {s.name}</p>
               ))}
             </div>
           )}
@@ -371,7 +375,7 @@ function App() {
                       style={{ marginTop: "8px" }}
                       onClick={() => ajouterMusiquePlaylist(song._id)}
                     >
-                      Ajouter à "{selectedPlaylist.name}"
+                      ➕ Ajouter à "{selectedPlaylist.name}"
                     </button>
                   )}
                 </div>
