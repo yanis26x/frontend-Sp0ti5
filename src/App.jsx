@@ -71,20 +71,16 @@ function App() {
 
     //recherche normale
     if (!musique) {
-      alert("Remplis au moins le nom de la musique ou de l'artiste !");
+      alert("Remplis au moins le nom de la musique !");
       return;
     }
 
     try {
       const params = new URLSearchParams();
-      params.append("name", musique);
-
-      if (artiste.trim() !== "") {
-        params.append("artist", artiste);
-      }
+      params.append("keyword", musique);
 
       const res = await axios.get(
-        `${HOST}spotify/search-song?${params.toString()}`
+        `${HOST}spotify/search?${params.toString()}`
       );
 
       setResultat(res.data.data); 
