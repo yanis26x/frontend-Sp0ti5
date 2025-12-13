@@ -14,6 +14,62 @@ if [ ! -f prod.json ]; then
     exit 1
 fi
 
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "Installing jq for JSON parsing..."
+    sudo apt-get update && sudo apt-get install -y jq
+fi
+
+# Export variables from prod.json file
+while IFS='=' read -r key value; do
+    # Remove quotes from value if present
+    value=$(echo "$value" | sed 's/^"//;s/"$//')
+    export "$key=$value"
+done < <(jq -r 'to_entries[] | "\(.key)=\(.value)"' prod.json)
+echo "Environment variables loaded successfully"
+
+# Validate required environment variables
+echo "Validating environment variables..."
+required_vars=(
+    "NODE_ENV"
+    "VITE_API_URL"
+    "VITE_PORT"
+    "DUCKDNS_TOKEN"
+    "DOMAIN"
+    "FRONTEND_DOMAIN"
+    "TRAEFIK_DOMAIN"
+    "TRAEFIK_CONTAINER"
+    "FRONTEND_CONTAINER"
+    "ACME_EMAIL"
+)
+missing_vars=()
+
+for var in "${required_vars[@]}"; do
+    value="${!var}"
+    # Check if variable is empty, unset, or starts with "your-"
+    if [[ -z "$value" ]] || [[ "$value" == your-* ]]; then
+        missing_vars+=("$var")
+    fi
+done
+
+if [ ${#missing_vars[@]} -ne 0 ]; then
+    echo "Error: The following environment variables are missing or have placeholder values in prod.json:"
+    for var in "${missing_vars[@]}"; do
+        echo "   - $var"
+    done
+    echo ""
+    echo "These variables are required for:"
+    echo "  - Docker Compose configuration (compose.yml)"
+    echo "  - Deployment script (deploy.sh)"
+    echo "  - Traefik reverse proxy configuration"
+    echo ""
+    echo "Please edit your prod.json file with real values:"
+    echo "nano prod.json"
+    exit 1
+fi
+
+echo "All required environment variables are set"
+
 # Get EC2 public IP
 echo "Getting EC2 public IP..."
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
