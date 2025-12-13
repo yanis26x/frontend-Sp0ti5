@@ -4,8 +4,7 @@ import "./App.css";
 import Auth from "./auth";
 
 function App() {
-  const [musique, setMusique] = useState("");
-  const [artiste, setArtiste] = useState("");
+  const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
 
   const [playlistName, setPlaylistName] = useState("");
@@ -43,7 +42,7 @@ function App() {
         },
       });
       setPlaylists(res.data);
-    } catch (err) {
+    } catch {
       console.error("Erreur chargement playlists");
     }
   };
@@ -52,41 +51,19 @@ function App() {
     if (user) loadPlaylists();
   }, [user]);
 
- 
   const chercher = async () => {
-    // seulement artiste toutes ses musiques
-    if (!musique && artiste) {
-      try {
-        const res = await axios.get(
-          `${HOST}spotify/songs/${artiste}`
-        );
-        setResultat(res.data.data); 
-        setAddSongMsg("");
-        return;
-      } catch (err) {
-        alert("Erreur récupération musiques de l'artiste");
-        return;
-      }
-    }
-
-    //recherche normale
-    if (!musique) {
-      alert("Remplis au moins le nom de la musique !");
+    if (!keyword) {
+      alert("Tape au moins quelques lettres");
       return;
     }
 
     try {
-      const params = new URLSearchParams();
-      params.append("keyword", musique);
+      const res = await axios.get(`${HOST}spotify/search?keyword=${keyword}`);
 
-      const res = await axios.get(
-        `${HOST}spotify/search?${params.toString()}`
-      );
-
-      setResultat(res.data.data); 
+      setResultat(res.data.data);
       setAddSongMsg("");
-    } catch (err) {
-      alert("Erreur ou musique introuvable");
+    } catch {
+      alert("Erreur recherche");
     }
   };
 
@@ -103,6 +80,7 @@ function App() {
           },
         }
       );
+
       setPlaylistMsg("Playlist créée !");
       setPlaylistName("");
       loadPlaylists();
@@ -124,6 +102,7 @@ function App() {
           },
         }
       );
+
       setAddSongMsg("Musique ajoutée !");
     } catch {
       setAddSongMsg("Erreur ajout musique");
@@ -163,18 +142,12 @@ function App() {
 
       <div className="content">
         <div className="left">
-          <h1>Chercher une musique/artiste</h1>
+          <h1>Recherche musique</h1>
 
           <input
-            placeholder="Nom de la musique"
-            value={musique}
-            onChange={(e) => setMusique(e.target.value)}
-          />
-
-          <input
-            placeholder="Nom de l'artiste"
-            value={artiste}
-            onChange={(e) => setArtiste(e.target.value)}
+            placeholder="Tape un nom"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
           />
 
           <button onClick={chercher}>Chercher</button>
@@ -193,7 +166,6 @@ function App() {
           {playlistMsg && <p>{playlistMsg}</p>}
         </div>
 
-
         <div className="right">
           {!resultat && (
             <div className="box">
@@ -203,11 +175,13 @@ function App() {
 
           {Array.isArray(resultat) && (
             <div className="box">
-              <h3>Musiques de {artiste}</h3>
+              <h3>Résultats</h3>
 
               {resultat.map((song) => (
-                <div key={song.id} style={{ marginBottom: "15px" }}>
-                  <p><b>{song.name}</b></p>
+                <div key={song.id} style={{ marginBottom: "16px" }}>
+                  <p>
+                    <b>{song.name}</b>
+                  </p>
                   <p style={{ opacity: 0.7 }}>{song.album}</p>
 
                   <select
@@ -230,35 +204,6 @@ function App() {
                   </button>
                 </div>
               ))}
-
-              {addSongMsg && <p>{addSongMsg}</p>}
-            </div>
-          )}
-
- 
-          {resultat && !Array.isArray(resultat) && (
-            <div className="box">
-              <p><b>Nom :</b> {resultat.name}</p>
-              <p><b>Album :</b> {resultat.album}</p>
-
-              <select
-                value={selectedPlaylist}
-                onChange={(e) => setSelectedPlaylist(e.target.value)}
-              >
-                <option value="">-- Playlist --</option>
-                {playlists.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                style={{ marginTop: "10px" }}
-                onClick={() => ajouterMusiquePlaylist(resultat.id)}
-              >
-                ➕ Ajouter à la playlist
-              </button>
 
               {addSongMsg && <p>{addSongMsg}</p>}
             </div>
