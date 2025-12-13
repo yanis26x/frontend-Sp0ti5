@@ -44,7 +44,7 @@ function GenreChart() {
 
 
         const formatted = res.data.top10.map((g) => ({
-          name: g.genre,   
+          name: g._id,   
           value: g.count,  
         }));
 
