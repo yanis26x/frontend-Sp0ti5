@@ -3,6 +3,10 @@ import axios from "axios";
 import "./App.css";
 import Auth from "./auth";
 import GenreChart from "./components/GenreChart";
+import Top10 from "./pages/Top10";
+
+
+
 
 function App() {
   const [keyword, setKeyword] = useState("");
@@ -124,10 +128,20 @@ function App() {
       />
     );
   }
+  if (page === "top10") {
+  return <Top10 goBack={() => setPage("home")} />;
+}
+
 
   return (
+    
     <div className="page">
+      
       <div className="topbar">
+        <button className="topbar-btn" onClick={() => setPage("top10")}>
+    Top 10
+  </button>
+        
         {!user ? (
           <button className="topbar-btn" onClick={() => setPage("auth")}>
             Login
@@ -138,6 +152,7 @@ function App() {
           </button>
         )}
       </div>
+      
 
       <div className="content">
         {/* LEFT */}
