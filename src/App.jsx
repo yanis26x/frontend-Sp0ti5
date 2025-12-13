@@ -263,22 +263,37 @@ if (page === "add-song") {
 <button onClick={() => setPage("top10-years")}>Top 10 années</button>
 
           {resultat && !isLoading && (
-            <div className="box">
-              <h3>Résultats</h3>
-              {resultat.map((song) => (
-                <div key={song._id} className="song-row">
-                  <b>{song.name}</b>
-                  <button
-                    onClick={() => ajouterMusiquePlaylist(song._id)}
-                  >
-                    Ajouter
-                  </button>
-                  
-                </div>
-              ))}
-            </div>
-            
-          )}
+  <div className="box">
+    <h3>Résultats</h3>
+
+    {resultat.map((song) => (
+      <div key={song._id} className="song-row">
+        <b>{song.name}</b>
+        <button onClick={() => ajouterMusiquePlaylist(song._id)}>
+          Ajouter
+        </button>
+      </div>
+    ))}
+
+    <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+      <button
+        className={currentPage === 1 ? "disabledButton" : ""}
+        disabled={currentPage === 1}
+        onClick={() => chercher(currentPage - 1)}
+      >
+        ← Previous
+      </button>
+
+      <button
+        className="topbar-btn"
+        onClick={() => chercher(currentPage + 1)}
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+)}
+
         </div>
       </div>
     </div>
