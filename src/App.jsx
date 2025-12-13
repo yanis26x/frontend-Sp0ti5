@@ -44,7 +44,7 @@ function App() {
         },
       });
       setPlaylists(res.data.data);
-    } catch {}
+    } catch { }
   };
 
   const loadPlaylistSongs = async (playlistId) => {
@@ -55,7 +55,7 @@ function App() {
         },
       });
       setPlaylistSongs(res.data.songs || []);
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -74,12 +74,14 @@ function App() {
       if (res.data.songs && res.data.songs.length > 0) {
         setResultat(res.data.songs);
         setCurrentPage(pageNum);
-        setHasNextPage(res.data.pagination.hasNextPage)
-        setHasPreviousPage(res.data.pagination.hasPreviousPage)
+        setHasNextPage(res.data.pagination.hasNextPage);
+        setHasPreviousPage(res.data.pagination.hasPreviousPage);
+      } else {
+        setResultat(null);
       }
     } catch (error) {
       console.error("Erreur recherche:", error);
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +191,7 @@ function App() {
               Aucune playlist pour <b>{user.name}</b>, crée-en une.
             </p>
           )}
-          
+
           {playlists.map((p) => (
             <button
               key={p._id}
@@ -264,7 +266,7 @@ function App() {
             </div>
           )}
 
-          {!resultat && (
+          {(!resultat || resultat == null) && (
             <div className="box">
               <b>Aucun résultat</b>
             </div>
@@ -298,10 +300,10 @@ function App() {
                 </div>
               ))}
 
-              {hasPreviousPage && (<button 
+              {hasPreviousPage && (<button
                 onClick={() => chercher(currentPage - 1)} >  Previous </button>)}
               {!hasPreviousPage && (<button className="disabledButton"> Previous</button>)}
-              
+
 
               {hasNextPage && (<button onClick={() => chercher(currentPage + 1)} > Next </button>)}
               {!hasNextPage && (<button className="disabledButton">Next</button>)}
