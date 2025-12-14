@@ -1,0 +1,124 @@
+/* Fixed Sidebar Styles */
+.home-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  padding: 20px;
+  background: rgba(5, 10, 18, 0.95);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.back-btn {
+  font-size: 20px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgb(6, 243, 255);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: rgb(6, 243, 255);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-item.active {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: rgba(0, 229, 255, 0.3);
+  font-weight: 600;
+}
+
+.nav-item.profile-nav {
+  color: #ff5050;
+  border-color: rgba(255, 80, 80, 0.3);
+}
+
+.nav-item.profile-nav:hover {
+  background: rgba(255, 80, 80, 0.1);
+}
+
+.nav-item.profile-nav.active {
+  background: rgba(255, 80, 80, 0.15);
+  border-color: rgba(255, 80, 80, 0.4);
+}
+
+.nav-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.nav-text {
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .home-sidebar {
+    width: 200px;
+  }
+
+  .sidebar-nav {
+    gap: 8px;
+  }
+
+  .nav-item {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-item {
+    flex: 1;
+    min-width: 120px;
+  }
+}

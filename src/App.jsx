@@ -1,366 +1,117 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import "./App.css";
-import Auth from "./auth";
-import GenreChart from "./components/GenreChart";
-import Top10 from "./pages/Top10";
-import Top10ArtistsPopularity from "./pages/Top10ArtistsPopularity";
-import Top10Genres from "./pages/Top10Genres";
-import Top10NewestSongs from "./pages/Top10NewestSongs";
-import Top10OldestSongs from "./pages/Top10OldestSongs";
-import Top10Years from "./pages/Top10Years";
-import AddSongFromSpotify from "./pages/AddSongFromSpotify";
-import PlaylistsPage from "./pages/PlaylistsPage";
-
-
-
-
-
-
+import Sidebar from "./components/Sidebar";
+import Home from "./pages/Home";
+import SearchSongs from "./pages/SearchSongs";
+import SearchArtists from "./pages/SearchArtists";
+import AllPlaylists from "./pages/AllPlaylists";
+import PlaylistDetails from "./pages/PlaylistDetails";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
+import Charts from "./pages/Charts";
 
 function App() {
-  const [showTop10Menu, setShowTop10Menu] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [resultat, setResultat] = useState(null);
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [playlistName, setPlaylistName] = useState("");
-  const [playlistMsg, setPlaylistMsg] = useState("");
-
-  const [playlists, setPlaylists] = useState([]);
-  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-  const [playlistSongs, setPlaylistSongs] = useState([]);
-
   const [page, setPage] = useState("home");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [playlistId, setPlaylistId] = useState(null);
   const [user, setUser] = useState(null);
-
-  const HOST = import.meta.env.VITE_API_URL;
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setUser(null);
-  };
+  const [navHistory, setNavHistory] = useState(["home"]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  const loadPlaylists = async () => {
-    const res = await axios.get(`${HOST}playlists`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    setPlaylists(res.data.data);
-  };
-
-  const loadPlaylistSongs = async (playlistId) => {
-    const res = await axios.get(
-      `${HOST}playlists/${playlistId}/songs/details`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  const handleNavigate = (pageName, ...args) => {
+    // Update navigation history
+    setNavHistory(prev => {
+      // Don't add the same page multiple times in a row
+      if (prev[prev.length - 1] !== pageName) {
+        return [...prev, pageName];
       }
-    );
-    setPlaylistSongs(res.data.songs);
-  };
-
-  useEffect(() => {
-    if (user) loadPlaylists();
-  }, [user]);
-
-  const chercher = async (pageNum = 1) => {
-    if (!keyword) return alert("Tape au moins quelques lettres");
-
-    setIsLoading(true);
-    const res = await axios.get(
-      `${HOST}spotify/search?keyword=${keyword}&page=${pageNum}`
-    );
-
-    if (res.data.songs?.length) {
-      setResultat(res.data.songs);
-      setCurrentPage(pageNum);
-      setHasNextPage(res.data.pagination.hasNextPage);
+      return prev;
+    });
+    
+    setPage(pageName);
+    // Handle playlist ID if provided as second argument
+    if (args.length > 0 && args[0]) {
+      setPlaylistId(args[0]);
     } else {
-      setResultat(null);
+      setPlaylistId(null);
     }
-
-    setIsLoading(false);
   };
 
-  const creerPlaylist = async () => {
-    if (!playlistName) return alert("Entre un nom de playlist");
+  const handleLoginSuccess = (userData) => {
+    setUser(userData);
+  };
 
-    await axios.post(
-      `${HOST}playlists`,
-      { name: playlistName },
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setPage("home");
+  };
+
+  const handleGoBack = () => {
+    setNavHistory(prev => {
+      if (prev.length > 1) {
+        // Remove current page from history
+        const newHistory = prev.slice(0, -1);
+        // Navigate to previous page
+        const previousPage = newHistory[newHistory.length - 1];
+        setPage(previousPage);
+        return newHistory;
       }
-    );
-
-    setPlaylistMsg("Playlist créée !");
-    setPlaylistName("");
-    loadPlaylists();
-  };
-
-  const supprimerPlaylist = async () => {
-    if (!selectedPlaylist) return;
-
-    await axios.delete(`${HOST}playlists/${selectedPlaylist._id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      return prev;
     });
-
-    setSelectedPlaylist(null);
-    setPlaylistSongs([]);
-    loadPlaylists();
   };
 
-  const ajouterMusiquePlaylist = async (songId) => {
-    if (!selectedPlaylist) return alert("Sélectionne une playlist");
-
-    await axios.post(
-      `${HOST}playlists/${selectedPlaylist._id}/songs`,
-      { songId },
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-
-    loadPlaylistSongs(selectedPlaylist._id);
+  const renderPageContent = () => {
+    switch (page) {
+      case "home":
+        return <Home onNavigate={handleNavigate} user={user} currentPage={page} />;
+      case "search-songs":
+        return <SearchSongs onNavigate={handleNavigate} user={user} currentPage={page} />;
+      case "search-artists":
+        return <SearchArtists onNavigate={handleNavigate} user={user} currentPage={page} />;
+      case "all-playlists":
+        return <AllPlaylists onNavigate={handleNavigate} user={user} currentPage={page} />;
+      case "playlist-details":
+        return (
+          <PlaylistDetails
+            onNavigate={handleNavigate}
+            playlistId={playlistId}
+            user={user}
+            currentPage={page}
+          />
+        );
+      case "login":
+        return <Login onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} currentPage={page} />;
+      case "signup":
+        return <SignUp onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} currentPage={page} />;
+      case "profile":
+        return <Profile onNavigate={handleNavigate} user={user} onLogout={handleLogout} currentPage={page} />;
+      case "charts":
+        return <Charts onNavigate={handleNavigate} user={user} currentPage={page} />;
+      default:
+        return <Home onNavigate={handleNavigate} user={user} currentPage={page} />;
+    }
   };
-
-  if (page === "all-playlists") {
-  return <PlaylistsPage onBack={() => setPage("home")} />;
-}
-
-  if (page === "auth") {
-    return (
-      <Auth
-        goHome={() => {
-          setPage("home");
-          const stored = localStorage.getItem("user");
-          if (stored) setUser(JSON.parse(stored));
-        }}
-      />
-    );
-  }
-  if (page === "top10") {
-  return <Top10 goBack={() => setPage("home")} />;
-}
-if (page === "top10-artists") {
-  return <Top10ArtistsPopularity onBack={() => setPage("home")} />;
-}
-
-if (page === "top10-genres") {
-  return <Top10Genres onBack={() => setPage("home")} />;
-}
-if (page === "top10-newest") {
-  return <Top10NewestSongs onBack={() => setPage("home")} />;
-}
-
-if (page === "top10-oldest") {
-  return <Top10OldestSongs onBack={() => setPage("home")} />;
-}
-
-if (page === "top10-years") {
-  return <Top10Years onBack={() => setPage("home")} />;
-}
-if (page === "add-song") {
-  return <AddSongFromSpotify onBack={() => setPage("home")} />;
-}
-
-
-
 
   return (
-    
-    <div className="page">
-      
-      <div className="topbar">
-  <div className="topbar-left">
-    <span className="logo">Sp0ti5 - made by yanis26x willirex manac n reda </span>
-  </div>
-
-  <div className="topbar-right">
-    {!user ? (
-      <button className="auth-btn" onClick={() => setPage("auth")}>
-        Login
-      </button>
-    ) : (
-      <>
-
-        <button className="auth-btn logout" onClick={logout}>
-          Logout
-        </button>
-      </>
-    )}
-  </div>
-</div>
-
-      
-
-      <div className="content">
-        <div className="left">
-          
-          <h1>playlists</h1>
-          <button onClick={() => setPage("all-playlists")}>
-  Voir toutes les playlists
-</button>
-
-
-          <div className="playlist-grid">
-            {playlists.map((p) => (
-              <div
-                key={p._id}
-                className={`playlist-card ${
-                  selectedPlaylist?._id === p._id ? "active" : ""
-                }`}
-                onClick={() => {
-                  setSelectedPlaylist(p);
-                  loadPlaylistSongs(p._id);
-                }}
-              >
-                <img
-                  src="src/assets/huhh_playlist.png"
-                  alt="playlist"
-                  className="playlist-img"
-                />
-                <div className="playlist-title">{p.name}</div>
-              </div>
-            ))}
-          </div>
-          <button
-  className="topbar-btn"
-  onClick={() => setPage("add-song")}
->
-  + Recherche d'artiste
-</button>
-
-
-          <h1>Créer une playlist</h1>
-          <input
-            placeholder="Nom de la playlist"
-            value={playlistName}
-            onChange={(e) => setPlaylistName(e.target.value)}
-          />
-          <button onClick={creerPlaylist}>Créer</button>
-          {playlistMsg && <p>{playlistMsg}</p>}
-
-          <h1>Recherche musique</h1>
-          <input
-            placeholder="Tape un nom"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-          <button onClick={() => chercher()}>Chercher</button>
-        </div>
-
-
-        <div className="right">
-          <div className="box">
-            <h3>Genres</h3>
-            <GenreChart />
-          </div>
-
-          {selectedPlaylist && (
-            <div className="box">
-              <h3>{selectedPlaylist.name}</h3>
-              <button className="danger" onClick={supprimerPlaylist}>
-                Supprimer la playlist
-              </button>
-              {playlistSongs.map((s) => (
-                <p key={s._id}>🎵 {s.name}</p>
-              ))}
-            </div>
-          )}
-
-
-<button
-  className="topbar-btn"
-  onClick={() => setShowTop10Menu(!showTop10Menu)}
->
-  {showTop10Menu ? "Fermer les Top 10" : "Voir tous les Top 10"}
-</button>
-
-{/* Menu Top 10 */}
-{showTop10Menu && (
-  <div
-    className="box"
-    style={{
-      marginTop: "15px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "10px",
-    }}
-  >
-    <button onClick={() => setPage("top10")}>
-      Top 10 musiques
-    </button>
-
-    <button onClick={() => setPage("top10-artists")}>
-      Top 10 artistes
-    </button>
-
-    <button onClick={() => setPage("top10-genres")}>
-      Top 10 genres
-    </button>
-
-    <button onClick={() => setPage("top10-newest")}>
-      Top 10 récentes
-    </button>
-
-    <button onClick={() => setPage("top10-oldest")}>
-      Top 10 anciennes
-    </button>
-
-    <button onClick={() => setPage("top10-years")}>
-      Top 10 années
-    </button>
-  </div>
-)}
-
-
-          {resultat && !isLoading && (
-  <div className="box">
-    <h3>Résultats</h3>
-
-    {resultat.map((song) => (
-      <div key={song._id} className="song-row">
-        <b>{song.name}</b>
-        <button onClick={() => ajouterMusiquePlaylist(song._id)}>
-          Ajouter
-        </button>
-      </div>
-    ))}
-
-    <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
-      <button
-        className={currentPage === 1 ? "disabledButton" : ""}
-        disabled={currentPage === 1}
-        onClick={() => chercher(currentPage - 1)}
-      >
-        ← Previous
-      </button>
-
-      {hasNextPage && (<button
-        className="topbar-btn"
-        onClick={() => chercher(currentPage + 1)}
-      >
-        Next →
-      </button>)}
-
-      {!hasNextPage && (<button
-        className="disabledButton"
-      >
-        Next →
-      </button>)}
-    </div>
-  </div>
-)}
-
-        </div>
-      </div>
+    <div className="app-container">
+      {page !== 'login' && page !== 'signup' && (
+        <Sidebar 
+          onNavigate={handleNavigate} 
+          onGoBack={handleGoBack}
+          user={user} 
+          currentPage={page} 
+          onLogout={handleLogout}
+        />
+      )}
+      <main className="main-content">
+        {renderPageContent()}
+      </main>
     </div>
   );
 }
