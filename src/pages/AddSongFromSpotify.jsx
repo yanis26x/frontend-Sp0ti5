@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import "../App.css";
 
 function AddSongFromSpotify({ onBack }) {
   const [artist, setArtist] = useState("");
@@ -8,10 +9,12 @@ function AddSongFromSpotify({ onBack }) {
   const [songs, setSongs] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
 
   const HOST = import.meta.env.VITE_API_URL;
 
-  const searchSongs = async () => {
+  const searchSongs = async (currentPage) => {
     if (!artist) {
       setMessage("Entre le nom de l'artiste");
       return;
@@ -23,7 +26,7 @@ function AddSongFromSpotify({ onBack }) {
 
     try {
       const res = await axios.get(
-        `${HOST}spotify/songs/${artist}`,
+        `${HOST}spotify/songs/${artist}?page=${currentPage}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -47,7 +50,7 @@ function AddSongFromSpotify({ onBack }) {
 
       setSongs(fetchedSongs);
       setArtistName(fetchedArtistInfo);
-      set
+      setHasNextPage(res.data.pagination.hasNextPage);
     } catch (err) {
       console.log("Erreur appel Spotify");
     } finally {
@@ -101,6 +104,28 @@ function AddSongFromSpotify({ onBack }) {
           </div>
         ))}
       </div>
+        {songs && ( <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+      <button
+        className={currentPage === 1 ? "disabledButton" : ""}
+        disabled={currentPage === 1}
+        onClick={() => searchSongs(currentPage - 1)}
+      >
+        ← Previous
+      </button>
+
+      {hasNextPage && (<button
+        className="topbar-btn"
+        onClick={() => searchSongs(currentPage + 1)}
+      >
+        Next →
+      </button>)}
+
+      {!hasNextPage && (<button
+        className="disabledButton"
+      >
+        Next →
+      </button>)}
+    </div>)}
     </div>
   );
 }
