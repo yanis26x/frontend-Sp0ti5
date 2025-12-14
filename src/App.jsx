@@ -10,6 +10,8 @@ import Top10NewestSongs from "./pages/Top10NewestSongs";
 import Top10OldestSongs from "./pages/Top10OldestSongs";
 import Top10Years from "./pages/Top10Years";
 import AddSongFromSpotify from "./pages/AddSongFromSpotify";
+import PlaylistsPage from "./pages/PlaylistsPage";
+
 
 
 
@@ -128,6 +130,10 @@ function App() {
     loadPlaylistSongs(selectedPlaylist._id);
   };
 
+  if (page === "all-playlists") {
+  return <PlaylistsPage onBack={() => setPage("home")} />;
+}
+
   if (page === "auth") {
     return (
       <Auth
@@ -198,6 +204,10 @@ if (page === "add-song") {
         <div className="left">
           
           <h1>playlists</h1>
+          <button onClick={() => setPage("all-playlists")}>
+  Voir toutes les playlists
+</button>
+
 
           <div className="playlist-grid">
             {playlists.map((p) => (
