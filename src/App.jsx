@@ -172,25 +172,32 @@ if (page === "add-song") {
     <div className="page">
       
       <div className="topbar">
+  <div className="topbar-left">
+    <span className="logo">Sp0ti5 - made by yanis26x willirex manac n reda </span>
+  </div>
 
+  <div className="topbar-right">
+    {!user ? (
+      <button className="auth-btn" onClick={() => setPage("auth")}>
+        Login
+      </button>
+    ) : (
+      <>
 
-        
-        {!user ? (
-          <button className="topbar-btn" onClick={() => setPage("auth")}>
-            Login
-          </button>
-        ) : (
-          <button className="topbar-btn logout" onClick={logout}>
-            Déconnexion
-          </button>
-        )}
-      </div>
+        <button className="auth-btn logout" onClick={logout}>
+          Logout
+        </button>
+      </>
+    )}
+  </div>
+</div>
+
       
 
       <div className="content">
         <div className="left">
           
-          <h1>Mes playlists</h1>
+          <h1>playlists</h1>
 
           <div className="playlist-grid">
             {playlists.map((p) => (

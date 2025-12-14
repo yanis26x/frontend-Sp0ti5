@@ -181,3 +181,55 @@ button {
   text-align: center;
   color: white;
 }
+
+
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  margin-bottom: 30px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+}
+
+.topbar-left .logo {
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+
+.auth-btn {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  cursor: pointer;
+}
+
+.auth-btn:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+
+.auth-btn.logout {
+  background: rgba(255, 80, 80, 0.18);
+  border-color: rgba(255, 80, 80, 0.3);
+}
