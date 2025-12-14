@@ -15,7 +15,9 @@ import AddSongFromSpotify from "./pages/AddSongFromSpotify";
 
 
 
+
 function App() {
+  const [showTop10Menu, setShowTop10Menu] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [resultat, setResultat] = useState(null);
   const [hasNextPage, setHasNextPage] = useState(true);
@@ -255,14 +257,52 @@ if (page === "add-song") {
               ))}
             </div>
           )}
-                  <button className="topbar-btn" onClick={() => setPage("top10")}>
-    Top 10 musiques 
-  </button>
-  <button onClick={() => setPage("top10-artists")}>Top 10 artistes</button>
-<button onClick={() => setPage("top10-genres")}>Top 10 genres</button>
-<button onClick={() => setPage("top10-newest")}>Top 10 récentes</button>
-<button onClick={() => setPage("top10-oldest")}>Top 10 anciennes</button>
-<button onClick={() => setPage("top10-years")}>Top 10 années</button>
+
+
+<button
+  className="topbar-btn"
+  onClick={() => setShowTop10Menu(!showTop10Menu)}
+>
+  {showTop10Menu ? "Fermer les Top 10" : "Voir tous les Top 10"}
+</button>
+
+{/* Menu Top 10 */}
+{showTop10Menu && (
+  <div
+    className="box"
+    style={{
+      marginTop: "15px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+    }}
+  >
+    <button onClick={() => setPage("top10")}>
+      Top 10 musiques
+    </button>
+
+    <button onClick={() => setPage("top10-artists")}>
+      Top 10 artistes
+    </button>
+
+    <button onClick={() => setPage("top10-genres")}>
+      Top 10 genres
+    </button>
+
+    <button onClick={() => setPage("top10-newest")}>
+      Top 10 récentes
+    </button>
+
+    <button onClick={() => setPage("top10-oldest")}>
+      Top 10 anciennes
+    </button>
+
+    <button onClick={() => setPage("top10-years")}>
+      Top 10 années
+    </button>
+  </div>
+)}
+
 
           {resultat && !isLoading && (
   <div className="box">
