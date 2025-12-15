@@ -4,12 +4,19 @@ import axios from "axios";
 import "../App.css";
 import "./Home.css";
 import GenreChart from "../components/GenreChart";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Label,
+} from "recharts";
 
-function Charts({ onNavigate, user, currentPage }) {
+function Charts({ onNavigate, user }) {
   const [activeTab, setActiveTab] = useState("genres");
   const [top10Songs, setTop10Songs] = useState([]);
   const [top10Artists, setTop10Artists] = useState([]);
-  const [top10Genres, setTop10Genres] = useState([]);
   const [top10Newest, setTop10Newest] = useState([]);
   const [top10Oldest, setTop10Oldest] = useState([]);
   const [top10Years, setTop10Years] = useState([]);
@@ -18,9 +25,7 @@ function Charts({ onNavigate, user, currentPage }) {
   const HOST = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    if (user) {
-      loadData(activeTab);
-    }
+    if (user) loadData(activeTab);
   }, [user, activeTab]);
 
   const loadData = async (tab) => {
@@ -28,171 +33,183 @@ function Charts({ onNavigate, user, currentPage }) {
 
     setLoading(true);
     try {
-      switch (tab) {
-        case "songs":
-          if (top10Songs.length === 0) {
-            const songsRes = await axios.get(`${HOST}topstats/songs/playcount`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            setTop10Songs(songsRes.data.top10);
-          }
-          break;
-        case "artists":
-          if (top10Artists.length === 0) {
-            const artistsRes = await axios.get(`${HOST}topstats/artists/popularity`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            setTop10Artists(artistsRes.data.top10);
-          }
-          break;
-        case "genres":
-          // GenreChart handles its own loading
-          break;
-        case "newest":
-          if (top10Newest.length === 0) {
-            const newestRes = await axios.get(`${HOST}topstats/songs/newest`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            setTop10Newest(newestRes.data.top10);
-          }
-          break;
-        case "oldest":
-          if (top10Oldest.length === 0) {
-            const oldestRes = await axios.get(`${HOST}topstats/songs/oldest`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            setTop10Oldest(oldestRes.data.top10);
-          }
-          break;
-        case "years":
-          if (top10Years.length === 0) {
-            const yearsRes = await axios.get(`${HOST}topstats/years`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            setTop10Years(yearsRes.data.top10);
-          }
-          break;
+      if (tab === "songs" && top10Songs.length === 0) {
+        const res = await axios.get(`${HOST}topstats/songs/playcount`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setTop10Songs(
+          res.data.top10.map((s) => ({
+            name: s.name || s.title || s._id,
+            value: s.playCount || 0,
+          }))
+        );
       }
-    } catch (err) {
-      console.error(`Error loading ${tab} data`, err);
+
+      if (tab === "artists" && top10Artists.length === 0) {
+        const res = await axios.get(`${HOST}topstats/artists/popularity`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setTop10Artists(
+          res.data.top10.map((a) => ({
+            name: a.artist || a.name,
+            value: a.popularity || 0,
+          }))
+        );
+      }
+
+      if (tab === "newest" && top10Newest.length === 0) {
+        const res = await axios.get(`${HOST}topstats/songs/newest`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setTop10Newest(
+          res.data.top10.map((s) => ({
+            name: s.name || s.title || s._id,
+            year: Number(String(s.releaseDate).slice(0, 4)),
+          }))
+        );
+      }
+
+      if (tab === "oldest" && top10Oldest.length === 0) {
+        const res = await axios.get(`${HOST}topstats/songs/oldest`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setTop10Oldest(
+          res.data.top10.map((s) => ({
+            name: s.name || s.title || s._id,
+            year: Number(String(s.releaseDate).slice(0, 4)),
+          }))
+        );
+      }
+
+      if (tab === "years" && top10Years.length === 0) {
+        const res = await axios.get(`${HOST}topstats/years`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setTop10Years(
+          res.data.top10.map((y) => ({
+            name: y._id,
+            value: y.songs,
+          }))
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const renderContent = () => {
-    if (loading) {
-      return <p>Chargement...</p>;
-    }
+  const renderChart = (data, dataKey, yLabel) => (
+    <div className="box" style={{ marginTop: 30, height: 360 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ bottom: 80, left: 40 }}>
+          <XAxis
+            dataKey="name"
+            interval={0}
+            angle={-30}
+            textAnchor="end"
+            tick={{ fontSize: 12 }}
+          >
+            <Label
+              value="Titres / Artistes"
+              position="insideBottom"
+              offset={-60}
+              fill="#ffffffaa"
+            />
+          </XAxis>
 
-    switch (activeTab) {
-      case "songs":
-        return (
+          <YAxis>
+            <Label
+              value={yLabel}
+              angle={-90}
+              position="insideLeft"
+              fill="#ffffffaa"
+            />
+          </YAxis>
+
+          <Bar dataKey={dataKey} fill="#f302e7ff" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  );
+
+  const renderContent = () => {
+    if (loading) return <p>chargement...</p>;
+
+    if (activeTab === "genres") return <GenreChart />;
+
+    if (activeTab === "songs")
+      return (
+        <>
           <div className="box">
             <h3>Top 10 musiques les plus écoutées</h3>
-            {top10Songs.map((song, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: "14px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.12)",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                }}
-              >
-                <span style={{ opacity: 0.6 }}>{index + 1}.</span>{" "}
-                <span>{song.name || song.title || song._id}</span>
+            {top10Songs.map((s, i) => (
+              <div key={i} style={{ padding: "12px 0", fontWeight: 600 }}>
+                {i + 1}. {s.name}
               </div>
             ))}
           </div>
-        );
+          {renderChart(top10Songs, "value", "Nombre d'écoutes")}
+        </>
+      );
 
-      case "artists":
-        return (
+    if (activeTab === "artists")
+      return (
+        <>
           <div className="box">
             <h3>Top 10 artistes (popularité)</h3>
-            {top10Artists.map((artist, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "12px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.12)",
-                  fontWeight: 600,
-                }}
-              >
-                {i + 1}. {artist.artist || artist.name}
+            {top10Artists.map((a, i) => (
+              <div key={i} style={{ padding: "12px 0", fontWeight: 600 }}>
+                {i + 1}. {a.name}
               </div>
             ))}
           </div>
-        );
+          {renderChart(top10Artists, "value", "Popularité")}
+        </>
+      );
 
-      case "genres":
-        return (
-          <>
-            <GenreChart />
-          </>
-        );
-
-      case "newest":
-        return (
+    if (activeTab === "newest")
+      return (
+        <>
           <div className="box">
             <h3>Top 10 musiques les plus récentes</h3>
-            {top10Newest.map((song, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "12px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.12)",
-                  fontWeight: 600,
-                }}
-              >
-                {i + 1}. {song.name || song.title || song._id}
+            {top10Newest.map((s, i) => (
+              <div key={i} style={{ padding: "12px 0", fontWeight: 600 }}>
+                {i + 1}. {s.name} ({s.year})
               </div>
             ))}
           </div>
-        );
+          {renderChart(top10Newest, "year", "Année de sortie")}
+        </>
+      );
 
-      case "oldest":
-        return (
+    if (activeTab === "oldest")
+      return (
+        <>
           <div className="box">
             <h3>Top 10 musiques les plus anciennes</h3>
-            {top10Oldest.map((song, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "12px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.12)",
-                  fontWeight: 600,
-                }}
-              >
-                {i + 1}. {song.name || song.title || song._id}
+            {top10Oldest.map((s, i) => (
+              <div key={i} style={{ padding: "12px 0", fontWeight: 600 }}>
+                {i + 1}. {s.name} ({s.year})
               </div>
             ))}
           </div>
-        );
+          {renderChart(top10Oldest, "year", "Année de sortie")}
+        </>
+      );
 
-      case "years":
-        return (
+    if (activeTab === "years")
+      return (
+        <>
           <div className="box">
             <h3>Top 10 années les plus représentées</h3>
-            {top10Years.map((year, i) => (
-              <div
-                key={i}
-                style={{
-                  padding: "12px 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.12)",
-                  fontWeight: 600,
-                }}
-              >
-                {i + 1}. {year.year || year._id}
+            {top10Years.map((y, i) => (
+              <div key={i} style={{ padding: "12px 0", fontWeight: 600 }}>
+                {i + 1}. {y.name}
               </div>
             ))}
           </div>
-        );
-
-      default:
-        return null;
-    }
+          {renderChart(top10Years, "value", "Nombre de titres")}
+        </>
+      );
   };
 
   return (
@@ -200,49 +217,18 @@ function Charts({ onNavigate, user, currentPage }) {
       <h1>Charts & Statistiques</h1>
 
       {!user ? (
-        <div className="box" style={{ marginBottom: 20 }}>
-          <p>Connectez-vous pour voir les statistiques</p>
+        <div className="box">
           <button onClick={() => onNavigate("login")}>Se connecter</button>
         </div>
       ) : (
         <>
           <div className="tabs-container">
-            <button
-              className={`tab-button ${activeTab === "genres" ? 'active' : ''}`}
-              onClick={() => setActiveTab("genres")}
-            >
-              Genres
-            </button>
-            <button
-              className={`tab-button ${activeTab === "songs" ? 'active' : ''}`}
-              onClick={() => setActiveTab("songs")}
-            >
-              Titres
-            </button>
-            <button
-              className={`tab-button ${activeTab === "artists" ? 'active' : ''}`}
-              onClick={() => setActiveTab("artists")}
-            >
-              Artistes
-            </button>
-            <button
-              className={`tab-button ${activeTab === "newest" ? 'active' : ''}`}
-              onClick={() => setActiveTab("newest")}
-            >
-              Les + récentes
-            </button>
-            <button
-              className={`tab-button ${activeTab === "oldest" ? 'active' : ''}`}
-              onClick={() => setActiveTab("oldest")}
-            >
-              Les + anciennes
-            </button>
-            <button
-              className={`tab-button ${activeTab === "years" ? 'active' : ''}`}
-              onClick={() => setActiveTab("years")}
-            >
-              Top 10 Années
-            </button>
+            <button onClick={() => setActiveTab("genres")}>Genres</button>
+            <button onClick={() => setActiveTab("songs")}>Titres</button>
+            <button onClick={() => setActiveTab("artists")}>Artistes</button>
+            <button onClick={() => setActiveTab("newest")}>Récentes</button>
+            <button onClick={() => setActiveTab("oldest")}>Anciennes</button>
+            <button onClick={() => setActiveTab("years")}>Années</button>
           </div>
 
           {renderContent()}
