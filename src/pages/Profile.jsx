@@ -34,8 +34,9 @@ function Profile({ onNavigate, user, onLogout, currentPage }) {
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
+    } else {
+      onNavigate("home");
     }
-    onNavigate("home");
   };
 
   if (!user) {
@@ -48,14 +49,8 @@ function Profile({ onNavigate, user, onLogout, currentPage }) {
   }
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
-
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Mon Profil</h1>
+    <>
+        <h1>Mon Profil</h1>
 
           <div className="box" style={{ marginBottom: 20 }}>
             <h3>Informations</h3>
@@ -84,9 +79,7 @@ function Profile({ onNavigate, user, onLogout, currentPage }) {
           >
             Se déconnecter
           </button>
-        </div>
-      </div>
-    </div>
+      </>
   );
 }
 

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import "./AllPlaylists.css";
 import "../App.css";
 import "./Home.css";
-import Sidebar from "../components/Sidebar";
 
 function AllPlaylists({ onNavigate, user, currentPage }) {
   const [playlists, setPlaylists] = useState([]);
@@ -67,59 +67,50 @@ function AllPlaylists({ onNavigate, user, currentPage }) {
   };
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
+    <>
+      <h1>Mes Playlists</h1>
 
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Mes Playlists</h1>
-
-          <div style={{ marginBottom: 30 }}>
-            <input
-              placeholder="Nom de la playlist"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && createPlaylist()}
-            />
-            <button onClick={createPlaylist} style={{ marginTop: 10 }}>
-              Créer une playlist
-            </button>
-          </div>
-
-          <div className="playlist-grid-page">
-            {playlists.map((p) => (
-              <div
-                key={p._id}
-                className="playlist-card-page"
-                onClick={() => onNavigate("playlist-details", p._id)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="playlist-image">🎵</div>
-                <div className="playlist-name">{p.name}</div>
-                <button
-                  className="delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deletePlaylist(p._id);
-                  }}
-                  style={{ marginTop: 10 }}
-                >
-                  Supprimer
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {playlists.length === 0 && (
-            <p style={{ opacity: 0.7, marginTop: 20 }}>
-              Aucune playlist. Créez-en une pour commencer !
-            </p>
-          )}
-        </div>
+      <div style={{ marginBottom: 30 }}>
+        <input
+          placeholder="Nom de la playlist"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && createPlaylist()}
+        />
+        <button onClick={createPlaylist}>
+          Créer une playlist
+        </button>
       </div>
-    </div>
+
+      <div className="playlist-grid">
+        {playlists.map((playlist) => (
+          <div key={playlist._id} className="playlist-card">
+            <div
+              className="playlist-image"
+              onClick={() => onNavigate("playlist-details", playlist._id)}
+            >
+              <img
+                src={new URL("../assets/huhh_playlist.png", import.meta.url).href}
+                alt={playlist.name}
+                className="playlist-thumbnail"
+              />
+            </div>
+            <div className="playlist-info">
+              <h3 onClick={() => onNavigate("playlist-details", playlist._id)}>
+                {playlist.name}
+              </h3>
+
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {playlists.length === 0 && (
+        <p style={{ opacity: 0.7, marginTop: 20 }}>
+          Aucune playlist. Créez-en une pour commencer !
+        </p>
+      )}
+    </>
   );
 }
 

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import "./Charts.css";
 import axios from "axios";
 import "../App.css";
 import "./Home.css";
 import GenreChart from "../components/GenreChart";
-import Sidebar from "../components/Sidebar";
 
 function Charts({ onNavigate, user, currentPage }) {
   const [activeTab, setActiveTab] = useState("genres");
@@ -25,7 +25,7 @@ function Charts({ onNavigate, user, currentPage }) {
 
   const loadData = async (tab) => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       switch (tab) {
@@ -128,10 +128,9 @@ function Charts({ onNavigate, user, currentPage }) {
 
       case "genres":
         return (
-          <div className="box">
-            <h3>Répartition des musiques par genre</h3>
+          <>
             <GenreChart />
-          </div>
+          </>
         );
 
       case "newest":
@@ -197,76 +196,59 @@ function Charts({ onNavigate, user, currentPage }) {
   };
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
+    <>
+      <h1>Charts & Statistiques</h1>
 
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Charts & Statistiques</h1>
-
-          {!user && (
-            <div className="box" style={{ marginBottom: 20 }}>
-              <p>Connectez-vous pour voir les statistiques</p>
-              <button onClick={() => onNavigate("login")}>Se connecter</button>
-            </div>
-          )}
-
-          {user && (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  marginBottom: 25,
-                  flexWrap: "wrap",
-                }}
-              >
-                <button
-                  className={activeTab === "genres" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("genres")}
-                >
-                  Genres
-                </button>
-                <button
-                  className={activeTab === "songs" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("songs")}
-                >
-                  Top 10 Musiques
-                </button>
-                <button
-                  className={activeTab === "artists" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("artists")}
-                >
-                  Top 10 Artistes
-                </button>
-                <button
-                  className={activeTab === "newest" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("newest")}
-                >
-                  Top 10 Récentes
-                </button>
-                <button
-                  className={activeTab === "oldest" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("oldest")}
-                >
-                  Top 10 Anciennes
-                </button>
-                <button
-                  className={activeTab === "years" ? "" : "topbar-btn"}
-                  onClick={() => setActiveTab("years")}
-                >
-                  Top 10 Années
-                </button>
-              </div>
-
-              {renderContent()}
-            </>
-          )}
+      {!user ? (
+        <div className="box" style={{ marginBottom: 20 }}>
+          <p>Connectez-vous pour voir les statistiques</p>
+          <button onClick={() => onNavigate("login")}>Se connecter</button>
         </div>
-      </div>
-    </div>
+      ) : (
+        <>
+          <div className="tabs-container">
+            <button
+              className={`tab-button ${activeTab === "genres" ? 'active' : ''}`}
+              onClick={() => setActiveTab("genres")}
+            >
+              Genres
+            </button>
+            <button
+              className={`tab-button ${activeTab === "songs" ? 'active' : ''}`}
+              onClick={() => setActiveTab("songs")}
+            >
+              Titres
+            </button>
+            <button
+              className={`tab-button ${activeTab === "artists" ? 'active' : ''}`}
+              onClick={() => setActiveTab("artists")}
+            >
+              Artistes
+            </button>
+            <button
+              className={`tab-button ${activeTab === "newest" ? 'active' : ''}`}
+              onClick={() => setActiveTab("newest")}
+            >
+              Les + récentes
+            </button>
+            <button
+              className={`tab-button ${activeTab === "oldest" ? 'active' : ''}`}
+              onClick={() => setActiveTab("oldest")}
+            >
+              Les + anciennes
+            </button>
+            <button
+              className={`tab-button ${activeTab === "years" ? 'active' : ''}`}
+              onClick={() => setActiveTab("years")}
+            >
+              Top 10 Années
+            </button>
+          </div>
+
+          {renderContent()}
+        </>
+      )}
+    </>
   );
 }
 

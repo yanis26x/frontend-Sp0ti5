@@ -16,6 +16,7 @@ function App() {
   const [playlistId, setPlaylistId] = useState(null);
   const [user, setUser] = useState(null);
   const [navHistory, setNavHistory] = useState(["home"]);
+  const [currentPage, setCurrentPage] = useState("home");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -66,41 +67,45 @@ function App() {
     });
   };
 
-  const renderPageContent = () => {
+  const renderPage = () => {
+    if (!user) {
+      return page === "login" ? (
+        <Login onLoginSuccess={handleLoginSuccess} onNavigate={handleNavigate} />
+      ) : (
+        <SignUp onSignUpSuccess={handleLoginSuccess} onNavigate={handleNavigate} />
+      );
+    }
+
     switch (page) {
       case "home":
-        return <Home onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <Home user={user} onNavigate={handleNavigate} currentPage={page} />;
       case "search-songs":
-        return <SearchSongs onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <SearchSongs user={user} onNavigate={handleNavigate} currentPage={page} />;
       case "search-artists":
-        return <SearchArtists onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <SearchArtists user={user} onNavigate={handleNavigate} currentPage={page} />;
       case "all-playlists":
-        return <AllPlaylists onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <AllPlaylists user={user} onNavigate={handleNavigate} currentPage={page} />;
       case "playlist-details":
         return (
           <PlaylistDetails
+            user={user}
             onNavigate={handleNavigate}
             playlistId={playlistId}
-            user={user}
             currentPage={page}
           />
         );
-      case "login":
-        return <Login onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} currentPage={page} />;
-      case "signup":
-        return <SignUp onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} currentPage={page} />;
       case "profile":
-        return <Profile onNavigate={handleNavigate} user={user} onLogout={handleLogout} currentPage={page} />;
+        return <Profile user={user} onNavigate={handleNavigate} onLogout={handleLogout} currentPage={page} />;
       case "charts":
-        return <Charts onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <Charts user={user} onNavigate={handleNavigate} currentPage={page} />;
       default:
-        return <Home onNavigate={handleNavigate} user={user} currentPage={page} />;
+        return <Home user={user} onNavigate={handleNavigate} currentPage={page} />;
     }
   };
 
   return (
     <div className="app-container">
-      {page !== 'login' && page !== 'signup' && (
+      <div className="page">
         <Sidebar 
           onNavigate={handleNavigate} 
           onGoBack={handleGoBack}
@@ -108,10 +113,10 @@ function App() {
           currentPage={page} 
           onLogout={handleLogout}
         />
-      )}
-      <main className="main-content">
-        {renderPageContent()}
-      </main>
+        <main className="main-content">
+          {renderPage()}
+        </main>
+      </div>
     </div>
   );
 }

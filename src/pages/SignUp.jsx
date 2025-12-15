@@ -25,11 +25,11 @@ function SignUp({ onNavigate, onLoginSuccess, currentPage }) {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      
+
       if (onLoginSuccess) {
         onLoginSuccess(res.data.user);
       }
-      
+
       onNavigate("home");
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de la création du compte");
@@ -37,55 +37,47 @@ function SignUp({ onNavigate, onLoginSuccess, currentPage }) {
   };
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
+    <>
+      <h1>Créer un compte</h1>
 
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Créer un compte</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          placeholder="Nom"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
-          <form onSubmit={handleSubmit}>
-            <input
-              placeholder="Nom"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+        {error && (
+          <p style={{ color: "#ff5050", marginBottom: 15 }}>{error}</p>
+        )}
 
-            {error && (
-              <p style={{ color: "#ff5050", marginBottom: 15 }}>{error}</p>
-            )}
+        <button type="submit">Créer mon compte</button>
+      </form>
 
-            <button type="submit">Créer mon compte</button>
-          </form>
-
-          <p
-            style={{ marginTop: 20, cursor: "pointer", color: "rgb(6, 243, 255)" }}
-            onClick={() => onNavigate("login")}
-          >
-            Déjà un compte ? Connecte-toi
-          </p>
-        </div>
-      </div>
-    </div>
+      <p
+        style={{ marginTop: 20, cursor: "pointer", color: "rgb(6, 243, 255)" }}
+        onClick={() => onNavigate("login")}
+      >
+        Déjà un compte ? Connecte-toi
+      </p>
+    </>
   );
 }
 

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import SongListItem from "../components/SongListItem";
+import Pagination from "../components/Pagination";
+import PlaylistSelect from "../components/PlaylistSelect";
 import axios from "axios";
 import "../App.css";
 import "./Home.css";
-import Sidebar from "../components/Sidebar";
 
 function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
   const [artist, setArtist] = useState("");
@@ -13,8 +15,50 @@ function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState(null);
+  const [playlists, setPlaylists] = useState([]);
 
   const HOST = import.meta.env.VITE_API_URL;
+
+  // Load playlists for adding songs
+  const loadPlaylists = async () => {
+    try {
+      const res = await axios.get(`${HOST}playlists`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setPlaylists(res.data.data);
+    } catch (err) {
+      console.error("Error loading playlists", err);
+    }
+  };
+
+  // Load playlists when user is logged in
+  useEffect(() => {
+    if (user) {
+      loadPlaylists();
+    }
+  }, [user]);
+
+  const addSongToPlaylist = async (songId) => {
+    if (!selectedPlaylistId) {
+      alert("Sélectionne une playlist");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${HOST}playlists/${selectedPlaylistId}/songs`,
+        { songId },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("Musique ajoutée à la playlist !");
+    } catch (err) {
+      console.error("Error adding song to playlist", err);
+      alert("Erreur lors de l'ajout");
+    }
+  };
 
   const searchSongs = async (pageNum = 1) => {
     if (!artist) {
@@ -62,75 +106,48 @@ function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
   };
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentRoute} />
+    <>
+      <h1>Rechercher un artiste et des musiques</h1>
 
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Rechercher les musiques d'un artiste</h1>
+      <input
+        placeholder="Nom de l'artiste"
+        value={artist}
+        onChange={(e) => setArtist(e.target.value)}
+        onKeyPress={(e) => e.key === "Enter" && searchSongs()}
+      />
 
-          <input
-            placeholder="Nom de l'artiste"
-            value={artist}
-            onChange={(e) => setArtist(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && searchSongs()}
-          />
+      <button onClick={() => searchSongs(1)}>Chercher</button>
 
-          <input
-            placeholder="Nom de la musique (optionnel)"
-            value={songName}
-            onChange={(e) => setSongName(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && searchSongs()}
-          />
+      {loading && <p>Chargement...</p>}
+      {message && <p>{message}</p>}
 
-          <button onClick={() => searchSongs(1)}>Chercher</button>
-
-          {loading && <p>Chargement...</p>}
-          {message && <p>{message}</p>}
-
-          {songs.length > 0 && (
-            <div className="box" style={{ marginTop: 25 }}>
-              {songs.map((song) => (
-                <div
-                  key={song._id}
-                  style={{
-                    padding: "14px 0",
-                    borderBottom: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  <p>Artiste: {artistName}</p>
-                  <b>Musique: {song.name}</b>
-                  <p style={{ opacity: 0.7 }}>Album: {song.album}</p>
-                </div>
-              ))}
-
-              <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
-                <button
-                  className={currentPage === 1 ? "disabledButton" : ""}
-                  disabled={currentPage === 1}
-                  onClick={() => searchSongs(currentPage - 1)}
-                >
-                  ← Previous
-                </button>
-
-                {hasNextPage ? (
-                  <button
-                    className="topbar-btn"
-                    onClick={() => searchSongs(currentPage + 1)}
-                  >
-                    Next →
-                  </button>
-                ) : (
-                  <button className="disabledButton">Next →</button>
-                )}
-              </div>
-            </div>
+      {songs.length > 0 && (
+        <div className="box" style={{ marginTop: 25 }}>
+          {user && (
+            <PlaylistSelect 
+              playlists={playlists}
+              selectedPlaylistId={selectedPlaylistId}
+              onPlaylistChange={setSelectedPlaylistId}
+            />
           )}
+          {songs.map((song) => (
+            <SongListItem
+              key={song._id}
+              song={song}
+              onButtonClick={user ? addSongToPlaylist : null}
+              buttonIcon="bx-plus-circle"
+              artistName={artistName}
+            />
+          ))}
+
+          <Pagination
+            currentPage={currentPage}
+            hasNextPage={hasNextPage}
+            onPageChange={(page) => searchSongs(page)}
+          />
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 

@@ -1,8 +1,26 @@
+html {
+  height: 100%;
+  overflow-y: hidden;
+}
+
 body {
-  background: #111;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
   color: white;
   font-family: Arial, sans-serif;
-  padding: 30px;
+  background: #050b12;
+  background-image: url("../src/assets/musicBackground.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {

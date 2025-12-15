@@ -23,11 +23,11 @@ function Login({ onNavigate, onLoginSuccess, currentPage }) {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      
+
       if (onLoginSuccess) {
         onLoginSuccess(res.data.user);
       }
-      
+
       onNavigate("home");
     } catch (err) {
       setError(err.response?.data?.message || "Erreur de connexion");
@@ -35,59 +35,51 @@ function Login({ onNavigate, onLoginSuccess, currentPage }) {
   };
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
+    <>
+      <h1>Connexion</h1>
 
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <h1>Connexion</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-          <form onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
-            <input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+        {error && (
+          <p style={{ color: "#ff5050", marginBottom: 15 }}>{error}</p>
+        )}
 
-            {error && (
-              <p style={{ color: "#ff5050", marginBottom: 15 }}>{error}</p>
-            )}
+        <button type="submit">Se connecter</button>
+      </form>
 
-            <button type="submit">Se connecter</button>
-          </form>
+      <p
+        style={{ marginTop: 20, cursor: "pointer", color: "rgb(6, 243, 255)" }}
+        onClick={() => onNavigate("signup")}
+      >
+        Pas de compte ? Inscris-toi
+      </p>
 
-          <p
-            style={{ marginTop: 20, cursor: "pointer", color: "rgb(6, 243, 255)" }}
-            onClick={() => onNavigate("signup")}
-          >
-            Pas de compte ? Inscris-toi
-          </p>
-
-          <div className="prFaireVite">
-            <button
-              onClick={() => {
-                setEmail("alic2e@example.com");
-                setPassword("password123");
-              }}
-            >
-              Auto remplir : alice2e@example.com / password123
-            </button>
-          </div>
-        </div>
+      <div className="prFaireVite">
+        <button
+          onClick={() => {
+            setEmail("alic2e@example.com");
+            setPassword("password123");
+          }}
+        >
+          Auto remplir : alice2e@example.com / password123
+        </button>
       </div>
-    </div>
+    </>
   );
 }
 

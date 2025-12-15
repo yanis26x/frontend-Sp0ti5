@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import SongListItem from "../components/SongListItem";
 import axios from "axios";
 import "../App.css";
 import "./Home.css";
+import "./PlaylistDetails.css";
 import Sidebar from "../components/Sidebar";
 
 function PlaylistDetails({ onNavigate, user, playlistId, currentPage }) {
@@ -67,7 +70,7 @@ function PlaylistDetails({ onNavigate, user, playlistId, currentPage }) {
   const removeSongFromPlaylist = async (songId) => {
     try {
       await axios.delete(
-        `${HOST}playlists/${playlistId}/songs/${songId}`,
+        `${HOST}playlists/${playlistId}/song/${songId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -101,63 +104,59 @@ function PlaylistDetails({ onNavigate, user, playlistId, currentPage }) {
   }
 
   return (
-    <div className="page">
-      <div className="home-layout">
-        {/* Left Sidebar Navigation */}
-        <Sidebar onNavigate={onNavigate} user={user} currentPage={currentPage} />
-
-        {/* Main Content Area */}
-        <div className="home-main-content">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30 }}>
-            <h1>{playlist.name}</h1>
+    <div className="playlist-details-container">
+      <div className="playlist-header-details">
+        <div className="playlist-image-large">
+          <img
+            src={new URL("../assets/huhh_playlist.png", import.meta.url).href}
+            alt={playlist.name}
+            className="playlist-thumbnail-large"
+          />
+        </div>
+        <div className="playlist-info-details">
+          <h1>{playlist.name}</h1>
+          <div className="playlist-actions">
             <button
-              className="danger"
+              className="delete-playlist-btn"
               onClick={supprimerPlaylist}
-              style={{ background: "rgba(255, 80, 80, 0.25)" }}
             >
-              Supprimer la playlist
+              <i className="bx bx-trash"></i> Supprimer la playlist
             </button>
           </div>
-
-          <div className="box">
-            <h3>Musiques ({playlistSongs.length})</h3>
-            {playlistSongs.length > 0 ? (
-              playlistSongs.map((song) => (
-                <div
-                  key={song._id}
-                  style={{
-                    padding: "14px 0",
-                    borderBottom: "1px solid rgba(255,255,255,0.1)",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <p style={{ margin: 0, fontWeight: 600 }}>🎵 {song.name}</p>
-                    {song.artist && (
-                      <p style={{ margin: "5px 0 0 0", opacity: 0.7, fontSize: 14 }}>
-                        {song.artist}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => removeSongFromPlaylist(song._id)}
-                    style={{
-                      padding: "6px 12px",
-                      background: "rgba(255, 80, 80, 0.25)",
-                      fontSize: 12,
-                    }}
-                  >
-                    Retirer
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p style={{ opacity: 0.7 }}>Aucune musique dans cette playlist</p>
-            )}
-          </div>
         </div>
+      </div>
+
+      <div className="playlist-songs-container">
+        <h3>{playlistSongs.length} TRACKS </h3>
+        {playlistSongs.length > 0 ? (
+          <div className="songs-list">
+            {playlistSongs.map((song) => (
+              <SongListItem
+                key={song._id}
+                song={song}
+                onButtonClick={() => removeSongFromPlaylist(song._id)/*  console.log("PlaylistID: " + playlistId +  ",songId: " + song._id + ",Token: " + localStorage.getItem("token")) */}
+                buttonIcon="bx-x-circle"
+                buttonVariant="danger"
+              />
+            ))}
+            <button
+              className="browse-songs-btn"
+              onClick={() => onNavigate('search-songs')}
+            >
+              <i className="bx bx-music"></i> Ajouter des musiques
+            </button>
+          </div>
+        ) : (
+          <div className="empty-playlist">
+            <p>Aucune musique dans cette playlist</p>
+            <button
+              className="browse-songs-btn"
+              onClick={() => onNavigate('search-songs')}
+            >
+              <i className="bx bx-music"></i> Parcourir les musiques
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

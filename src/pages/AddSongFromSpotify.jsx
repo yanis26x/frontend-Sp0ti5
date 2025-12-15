@@ -37,7 +37,7 @@ function AddSongFromSpotify({ onBack }) {
       let fetchedSongs = res.data.data || [];
       let fetchedArtistInfo = res.data.artist.name || "";
 
-   
+
       if (songName) {
         fetchedSongs = fetchedSongs.filter((s) =>
           s.name.toLowerCase().includes(songName.toLowerCase())
@@ -104,28 +104,28 @@ function AddSongFromSpotify({ onBack }) {
           </div>
         ))}
       </div>
-        {songs && ( <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
-      <button
-        className={currentPage === 1 ? "disabledButton" : ""}
-        disabled={currentPage === 1}
-        onClick={() => searchSongs(currentPage - 1)}
-      >
-        ← Previous
-      </button>
+      {songs && (<div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+        <button
+          className={currentPage === 1 ? "disabledButton" : ""}
+          disabled={currentPage === 1}
+          onClick={() => searchSongs(currentPage - 1)}
+        >
+          ← Previous
+        </button>
 
-      {hasNextPage && (<button
-        className="topbar-btn"
-        onClick={() => searchSongs(currentPage + 1)}
-      >
-        Next →
-      </button>)}
+        {hasNextPage && (<button
+          className="topbar-btn"
+          onClick={() => searchSongs(currentPage + 1)}
+        >
+          Next →
+        </button>)}
 
-      {!hasNextPage && (<button
-        className="disabledButton"
-      >
-        Next →
-      </button>)}
-    </div>)}
+        {!hasNextPage && (<button
+          className="disabledButton"
+        >
+          Next →
+        </button>)}
+      </div>)}
     </div>
   );
 }
