@@ -24,9 +24,7 @@ function App() {
   }, []);
 
   const handleNavigate = (pageName, ...args) => {
-    // Update navigation history
     setNavHistory(prev => {
-      // Don't add the same page multiple times in a row
       if (prev[prev.length - 1] !== pageName) {
         return [...prev, pageName];
       }
@@ -34,7 +32,6 @@ function App() {
     });
     
     setPage(pageName);
-    // Handle playlist ID if provided as second argument
     if (args.length > 0 && args[0]) {
       setPlaylistId(args[0]);
     } else {
@@ -56,9 +53,7 @@ function App() {
   const handleGoBack = () => {
     setNavHistory(prev => {
       if (prev.length > 1) {
-        // Remove current page from history
         const newHistory = prev.slice(0, -1);
-        // Navigate to previous page
         const previousPage = newHistory[newHistory.length - 1];
         setPage(previousPage);
         return newHistory;

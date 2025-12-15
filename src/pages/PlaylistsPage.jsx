@@ -119,12 +119,6 @@ function PlaylistsPage({ onBack }) {
           <p>Créez votre première playlist en utilisant le formulaire ci-dessus</p>
         </div>
       )}
-
-{/* 
-      <div className="pagination">
-        <button>← Previous</button>
-        <button>Next →</button>
-      </div> */}
     </div>
   );
 }

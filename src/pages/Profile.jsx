@@ -18,8 +18,6 @@ function Profile({ onNavigate, user, onLogout, currentPage }) {
 
   const loadUserStats = async () => {
     try {
-      // You can add API call here to get user stats if available
-      // For now, we'll just show user info
       setUserStats({
         playlistsCount: 0,
         songsCount: 0,

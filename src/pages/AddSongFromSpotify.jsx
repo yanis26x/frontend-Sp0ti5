@@ -23,6 +23,7 @@ function AddSongFromSpotify({ onBack }) {
     setLoading(true);
     setMessage("");
     setSongs([]);
+    setCurrentPage(currentPage);
 
     try {
       const res = await axios.get(

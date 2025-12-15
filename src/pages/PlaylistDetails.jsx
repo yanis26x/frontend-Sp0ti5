@@ -23,7 +23,6 @@ function PlaylistDetails({ onNavigate, user, playlistId, currentPage }) {
   const loadPlaylistDetails = async () => {
     try {
       setLoading(true);
-      // Load playlist info
       const playlistRes = await axios.get(`${HOST}playlists/${playlistId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -31,7 +30,6 @@ function PlaylistDetails({ onNavigate, user, playlistId, currentPage }) {
       });
       setPlaylist(playlistRes.data.data);
 
-      // Load playlist songs
       const songsRes = await axios.get(
         `${HOST}playlists/${playlistId}/songs/details`,
         {

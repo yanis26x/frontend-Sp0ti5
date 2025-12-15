@@ -8,11 +8,7 @@ export default function Auth({ goHome }) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  // ============================
-  //   COMME ICI STRUCTURE
-  // ============================
   const HOST = import.meta.env.VITE_API_URL;
-  // ============================
 
   const handleSubmit = async () => {
     try {

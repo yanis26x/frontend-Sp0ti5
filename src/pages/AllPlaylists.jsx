@@ -70,15 +70,20 @@ function AllPlaylists({ onNavigate, user, currentPage }) {
     <>
       <h1>Mes Playlists</h1>
 
-      <div style={{ marginBottom: 30 }}>
+      <div className="search-container" style={{ marginBottom: '30px' }}>
         <input
-          placeholder="Nom de la playlist"
+          className="search-input"
+          placeholder="Nom de la nouvelle playlist"
           value={name}
           onChange={(e) => setName(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && createPlaylist()}
         />
-        <button onClick={createPlaylist}>
-          Créer une playlist
+        <button
+          className="search-button"
+          onClick={createPlaylist}
+          disabled={!name.trim()}
+        >
+          <i className="bx bx-plus"></i>
         </button>
       </div>
 

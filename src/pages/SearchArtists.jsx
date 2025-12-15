@@ -20,7 +20,6 @@ function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
 
   const HOST = import.meta.env.VITE_API_URL;
 
-  // Load playlists for adding songs
   const loadPlaylists = async () => {
     try {
       const res = await axios.get(`${HOST}playlists`, {
@@ -32,7 +31,6 @@ function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
     }
   };
 
-  // Load playlists when user is logged in
   useEffect(() => {
     if (user) {
       loadPlaylists();
@@ -107,16 +105,32 @@ function SearchArtists({ onNavigate, user, currentPage: currentRoute }) {
 
   return (
     <>
-      <h1>Rechercher un artiste et des musiques</h1>
+      <h1>Rechercher un artiste</h1>
 
-      <input
-        placeholder="Nom de l'artiste"
-        value={artist}
-        onChange={(e) => setArtist(e.target.value)}
-        onKeyPress={(e) => e.key === "Enter" && searchSongs()}
-      />
-
-      <button onClick={() => searchSongs(1)}>Chercher</button>
+      <div className="search-container">
+        <input
+          className="search-input"
+          placeholder="Nom de l'artiste"
+          value={artist}
+          onChange={(e) => setArtist(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && searchSongs()}
+        />
+        <button className="search-button" onClick={() => searchSongs(1)}>
+          <i className="bx bx-search"></i>
+        </button>
+      </div>
+      
+      {artist && (
+        <div className="search-container" style={{ marginTop: '10px' }}>
+          <input
+            className="search-input"
+            placeholder="Filtrer par titre de musique (optionnel)"
+            value={songName}
+            onChange={(e) => setSongName(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && searchSongs()}
+          />
+        </div>
+      )}
 
       {loading && <p>Chargement...</p>}
       {message && <p>{message}</p>}

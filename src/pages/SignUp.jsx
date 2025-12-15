@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import "../App.css";
 import "./Home.css";
-import Sidebar from "../components/Sidebar";
 
 function SignUp({ onNavigate, onLoginSuccess, currentPage }) {
   const [name, setName] = useState("");

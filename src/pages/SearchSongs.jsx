@@ -17,7 +17,6 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
 
   const HOST = import.meta.env.VITE_API_URL;
 
-  // Load playlists for adding songs
   const loadPlaylists = async () => {
     try {
       const res = await axios.get(`${HOST}playlists`, {
@@ -29,7 +28,6 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
     }
   };
 
-  // Load playlists when user is logged in
   useEffect(() => {
     if (user) {
       loadPlaylists();
@@ -58,7 +56,7 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
       }
     } catch (err) {
       if (err.response?.status === 404) {
-        setResultat([]); // Set empty array to trigger the "Aucune musique trouvée" message
+        setResultat([]);
       } else {
         alert("Erreur lors de la recherche");
       }
@@ -91,16 +89,18 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
   return (
     <>
       <h1>Recherche musique</h1>
-
-      <input
-        placeholder="Tape un nom"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        onKeyPress={(e) => e.key === "Enter" && chercher()}
-      />
-
-      <button onClick={() => chercher()}>Chercher</button>
-
+      <div className="search-container">
+        <input
+          className="search-input"
+          placeholder="Rechercher une musique..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && chercher()}
+        />
+        <button className="search-button" onClick={() => chercher()}>
+          <i className="bx bx-search"></i>
+        </button>
+      </div>
       {isLoading && <p>Chargement...</p>}
 
       {resultat !== null && !isLoading && (
@@ -111,7 +111,7 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
           ) : (
             <>
               {user && (
-                <PlaylistSelect 
+                <PlaylistSelect
                   playlists={playlists}
                   selectedPlaylistId={selectedPlaylistId}
                   onPlaylistChange={setSelectedPlaylistId}
@@ -125,7 +125,7 @@ function SearchSongs({ onNavigate, user, currentPage: currentRoute }) {
                   buttonIcon="bx-plus-circle"
                 />
               ))}
-              
+
               <Pagination
                 currentPage={currentPage}
                 hasNextPage={hasNextPage}

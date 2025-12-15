@@ -3,7 +3,6 @@ import axios from "axios";
 
 function Top10({ onBack }) {
   const [top10, setTop10] = useState([]);
-
   const HOST = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
