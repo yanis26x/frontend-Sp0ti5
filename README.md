@@ -2,7 +2,7 @@
 
 Spotifew is a web application that collects, analyzes, and stores music data from the Spotify API. The system processes this data to provide personalized statistics about users' listening habits. This project was developed by a team of 4 students as part of a course.
 
-### Our project is available here: 
+## Our project is available here
 
 - **Frontend Website**: `https://spotifew.4pp.duckdns.org`
 - **Frontend Traefik Dashboard**: `https://traefik.4pp.duckdns.org`
@@ -13,27 +13,30 @@ Spotifew is a web application that collects, analyzes, and stores music data fro
 - **Swagger Documentation**: `https://spotifew.b4ckend.duckdns.org/api-docs/`
 - **Backend Repo**: `https://github.com/SaciReda/420-514-MV-ProjetFinal.git`
 
-### Important files:
+### Important files
 
-- **PowerPoint**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/src/assets/PrésentationCollecte.pptx)
-- **Postman Collection**: [here](https://github.com/SaciReda/420-514-MV-ProjetFinal/blob/main/ProjetFinalCollecte.postman_collection.json)
+- **Analysis Report**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/RAPPORT_ANALYSE.md)
+- **Analysis Report PDF**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/src/assets/PrésentationCollecte.pptx)
+- **PowerPoint**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/src/assets/Rapport_d’analyse.pdf)
+- **Postman Collection**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/ProjetFinalCollecte.postman_collection.json)
 - **Frontend Dev Config File**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/dev.json.example)
 - **Frontend Prod Config File**: [here](https://github.com/yanis26x/frontend-Sp0ti5/blob/main/prod.json.example)
 - **Backend Dev Config File**: [here](https://github.com/SaciReda/420-514-MV-ProjetFinal/blob/main/dev.json.example)
 - **Backend Prod Config File**: [here](https://github.com/SaciReda/420-514-MV-ProjetFinal/blob/main/prod.json.example)
 
-### Important Videos:
+### Important Videos
 
 - **Client Demo**: [here](https://www.youtube.com/watch?v=qkdga0qvQiA)
 - **Technical Demo**: [here](https://www.youtube.com/watch?v=h5Vz9cf4BsY)
 
-### Others:
+### Others
 
 - **Wiki**: [here](https://github.com/yanis26x/frontend-Sp0ti5/wiki/1.-Infrastructure)
 
 ## Technology Stack
 
 ### Frontend Architecture
+
 - **React 19** with modern hooks and functional components
 - **Vite** for easy development and production configuration
 - **React Router v7** for client-side routing
@@ -41,6 +44,7 @@ Spotifew is a web application that collects, analyzes, and stores music data fro
 - **Axios** for type-safe API communication
 
 ### Infrastructure & DevOps
+
 - **AWS EC2** (t3.micro) since this is a small project
 - **Docker** containerization for consistent environments
 - **Terraform** for infrastructure as code (IaC) on AWS, provisioning resources (VPC, security groups, and networking)
@@ -154,6 +158,7 @@ chmod +x deploy.sh
 **Wait approximately 5 minutes for full deployment.**
 
 The deploy script will:
+
 - Load environment variables from `prod.json`
 - Get EC2 public IP
 - Update DuckDNS with the new IP
@@ -166,13 +171,6 @@ Once deployed, access your application at:
 
 - **Backend API**: `https://spotifew.your-domain.duckdns.org`
 - **Traefik Dashboard**: `https://traefik.your-domain.duckdns.org`
-
-## Prerequisites
-
-- AWS CLI configured with credentials
-- Terraform installed
-- Docker and Docker Compose installed on EC2 instance
-- DuckDNS account and domain configured
 
 ### Rebuild Services
 
