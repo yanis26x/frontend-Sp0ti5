@@ -137,7 +137,7 @@ nano prod.json
     "DUCKDNS_TOKEN": "your-token",
     "DOMAIN": "your-domain.duckdns.org",
     "FRONTEND_DOMAIN": "spotifew.your-domain.duckdns.org",
-    "TRAEFIK_DOMAIN": "traefik.your-domain.duckdns.org"
+    "TRAEFIK_DOMAIN": "traefik.your-domain.duckdns.org",
 
     "TRAEFIK_CONTAINER": "traefik",
     "FRONTEND_CONTAINER": "frontend",
